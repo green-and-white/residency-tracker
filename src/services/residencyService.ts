@@ -28,3 +28,16 @@ export async function addTimeIn(studentId: number, timeIn: Date, residencyType: 
     throw new Error("Unable to create a residency log to time in.");
   }
 }
+
+export async function addTimeOut(studentId: number, timeOut: Date) {
+  const { error } = await supabase
+    .from('residencylogs')
+    .update({ time_out: timeOut.toISOString() })
+    .eq('student_uid', studentId)
+    .is('time_out', null);
+
+  if (error) {
+    console.error("Service Error: addTimeOut", error);
+    throw new Error("Unable to update residency log to time out.")
+  }
+}
