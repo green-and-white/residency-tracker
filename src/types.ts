@@ -2,7 +2,7 @@ export type ResidencyLog = {
   id: number;
   student_uid: string;
   time_in: Date;
-  time_out: Date;
+  time_out: Date | null;
   residency_type: "core" | "ancilliary";
 }
 
