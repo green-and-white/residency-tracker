@@ -12,5 +12,19 @@ export async function fetchResidencyLogs() {
  
   return data || [];
 }
-
 // TODO: add subscribe service to listen to real time changes (if needed)
+
+export async function addTimeIn(studentId: number, timeIn: Date, residencyType: string) {
+  const { error } = await supabase
+    .from('residencylogs')
+    .insert({
+      student_uid: studentId,
+      time_in: timeIn.toISOString(),
+      residency_type: residencyType
+    });
+  
+  if (error) {
+    console.error("Service Error: addTimeIn", error);
+    throw new Error("Unable to create a residency log to time in.");
+  }
+}

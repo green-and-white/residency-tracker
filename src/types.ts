@@ -1,5 +1,5 @@
 export type ResidencyLog = {
-  id: number;
+  id?: number;
   student_uid: string;
   time_in: Date;
   time_out: Date | null;
