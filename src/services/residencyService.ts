@@ -41,3 +41,27 @@ export async function addTimeOut(studentId: string, timeOut: Date) {
     throw new Error("Unable to update residency log to time out.")
   }
 }
+
+export async function hasActiveLogToday(studentId: string) {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const { data, error } = await supabase
+    .from('residencylogs')
+    .select('*')
+    .eq('student_uid', studentId)
+    .gte('time_in', startOfDay.toISOString())
+    .lte('time_in', endOfDay.toISOString())
+    .is('time_out', null)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Service Error: hasActiveLogToday', error);
+    throw new Error('Could not check for existing logs.');
+  }
+
+  return data !== null; // true if the student already has a log without time_out
+}

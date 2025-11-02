@@ -1,19 +1,50 @@
-// import { useState } from "react";
-// import { useTimeIn } from "../../hooks/useTimeIn"
-// import { useTimeOut } from "../../hooks/useTimeOut";
+import { useState } from "react";
 import Select from 'react-select'
 import gwLogo from '../../assets/gw_logo.png'
+import { hasActiveLogToday } from "../../services/residencyService";
+import { useTimeIn } from '../../hooks/useTimeIn'
+import { useTimeOut } from '../../hooks/useTimeOut'
 
 export default function Residency() {
-    // const { handleTimeIn, isLoading, error } = useTimeIn();
-    // const { handleTimeOut } = useTimeOut();
-    // const currentTimestamp = new Date();  
-    // const [isTimedOut, setIsTimedOut] = useState(false);
+    const [studentId, setStudentId] = useState("")
+    const [surname, setSurname] = useState("")
+    const [residencyType, setResidencyType] = useState<string | null>(null)
+
+    const { handleTimeIn } = useTimeIn()
+    const { handleTimeOut } = useTimeOut()
 
     const options = [
       { value: "core", label: "Core" },
       { value: "ancillary", label: "Ancillary" },
     ];
+
+    const handleSubmit = async () => {
+      if (!studentId || !residencyType){
+        alert("Please fill in all the fields.")
+        return;
+      }
+
+      const currentTimestamp = new Date()
+
+      try {
+        const alreadyTimedIn = await hasActiveLogToday(studentId)
+        if (alreadyTimedIn) {
+          await handleTimeOut(studentId, currentTimestamp)
+          alert('Successfully timed out.')
+        } else {
+          await handleTimeIn(studentId, currentTimestamp, residencyType)
+          alert('Successfully timed in.')
+        }
+
+        setStudentId("")
+        setSurname("")
+        setResidencyType(null)
+
+      } catch (err) {
+        console.error(err)
+        alert('An error occured.')
+      }
+    }
 
     return (
         <main className="flex flex-col items-center min-h-screen space-y-4">
@@ -21,20 +52,20 @@ export default function Residency() {
             <div className="m-5 space-y-5">
               <div className='flex flex-col'>
                 <p className='mb-2'>Student UID</p>
-                <input type="password" placeholder="Click here when scanning ID" onCopy={(e) => e.preventDefault()} className="border px-3 py-2 w-56 rounded-sm" />
+                <input type="password" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Click here when scanning ID" onCopy={(e) => e.preventDefault()} className="border px-3 py-2 w-56 rounded-sm" />
               </div>
               <div className='flex flex-col'>
                 <p className='mb-2'>Surname</p>
-                <input type="text" placeholder="Enter your surname" className="border px-3 py-2 w-56 rounded-sm" />
+                <input type="text" value={surname} onChange={(e) => setSurname(e.target.value)} placeholder="Enter your surname" className="border px-3 py-2 w-56 rounded-sm" />
               </div>
               <div className='flex flex-col'>
                 <p className='mb-2'>Residency type</p>
                 <div className='w-56'>
-                  <Select options={options} placeholder="Select" className='border rounded-sm' />
+                  <Select options={options} placeholder="Select" value={options.find((o) => o.value === residencyType) || null} onChange={(option) => setResidencyType(option?.value ?? null)} className='border rounded-sm' />
                 </div>
               </div>
               <div>
-                <button className='border rounded-sm px-3 py-2 w-56 mt-20 cursor-pointer hover:bg-gray-100 transition'>Submit</button>
+                <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-56 mt-20 cursor-pointer hover:bg-gray-100 transition'>Submit</button>
               </div>
             </div>
             <div>
