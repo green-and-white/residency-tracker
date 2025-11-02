@@ -73,3 +73,60 @@ export async function hasActiveLogToday(studentId: string): Promise<ActiveLog | 
 
   return data;
 }
+
+export interface StudentHours {
+  name: string;
+  total_hours: number;
+  committee: string;
+}
+
+export async function getTotalHoursPerStudent(): Promise<StudentHours[]> {
+  // Fetch logs
+  const logs = await fetchResidencyLogs();
+
+  // Fetch students with committee
+  const { data: students, error: studentError } = await supabase
+    .from("students")
+    .select("student_uid, name, committee"); // include committee
+
+  if (studentError || !students) {
+    console.error("Error fetching students:", studentError);
+    throw new Error("Could not fetch student names");
+  }
+
+  // Map UID → { name, committee }
+  const uidToInfo: Record<string, { name: string; committee: string }> = {};
+  students.forEach((s) => {
+    uidToInfo[s.student_uid] = { name: s.name, committee: s.committee || "web" }; // fallback committee
+  });
+
+  // Compute totals keyed by name
+  const totals: Record<string, { total_hours: number; committee: string }> = {};
+
+  logs.forEach((log: ActiveLog) => {
+    if (log.time_out) {
+      const timeIn = new Date(log.time_in);
+      const timeOut = new Date(log.time_out);
+      let hours = (timeOut.getTime() - timeIn.getTime()) / 1000 / 3600;
+
+      if (log.residency_type.toLowerCase() === "ancillary") {
+        hours /= 2;
+      }
+
+      const studentInfo = uidToInfo[log.student_uid];
+      if (!studentInfo) return;
+
+      if (!totals[studentInfo.name]) {
+        totals[studentInfo.name] = { total_hours: 0, committee: studentInfo.committee };
+      }
+      totals[studentInfo.name].total_hours += hours;
+    }
+  });
+
+  // Convert to array of objects including committee
+  return Object.entries(totals).map(([name, data]) => ({
+    name,
+    total_hours: data.total_hours,
+    committee: data.committee,
+  }));
+}
