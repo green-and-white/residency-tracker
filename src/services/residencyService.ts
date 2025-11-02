@@ -1,5 +1,13 @@
 import supabase from "../utils/supabase";
 
+export interface ActiveLog {
+  id: number;
+  student_uid: string;
+  time_in: string;
+  time_out: string | null;
+  residency_type: string;
+}
+
 export async function fetchResidencyLogs() {
   const { data, error } = await supabase
     .from("residencylogs")
@@ -42,7 +50,7 @@ export async function addTimeOut(studentId: string, timeOut: Date) {
   }
 }
 
-export async function hasActiveLogToday(studentId: string) {
+export async function hasActiveLogToday(studentId: string): Promise<ActiveLog | null> {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
@@ -63,5 +71,5 @@ export async function hasActiveLogToday(studentId: string) {
     throw new Error('Could not check for existing logs.');
   }
 
-  return data !== null; // true if the student already has a log without time_out
+  return data;
 }

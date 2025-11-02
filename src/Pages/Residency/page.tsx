@@ -43,13 +43,23 @@ export default function Residency() {
           return;
         }
 
-        const alreadyTimedIn = await hasActiveLogToday(studentId)
-        if (alreadyTimedIn) {
-          await handleTimeOut(studentId, currentTimestamp)
-          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 5000 })
+        const activeLog = await hasActiveLogToday(studentId);
+
+        if (activeLog) {
+          // If student is timing out, ensure residency type matches
+          if (activeLog.residency_type !== residencyType) {
+            alert(`Cannot time out. Original time-in was "${activeLog.residency_type}". Please select the correct residency type.`);
+            setIsLoading(false);
+            return;
+          }
+
+          // Time out
+          await handleTimeOut(studentId, currentTimestamp);
+          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 5000 });
         } else {
-          await handleTimeIn(studentId, currentTimestamp, residencyType)
-          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 5000 })
+          // Time in
+          await handleTimeIn(studentId, currentTimestamp, residencyType);
+          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 5000 });
         }
 
         setStudentId("")
