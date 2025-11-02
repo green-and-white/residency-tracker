@@ -8,6 +8,7 @@ import { Toaster, toast } from 'sonner'
 import { useNavigate } from "react-router-dom"
 import { destroySession } from "@/utils/session";
 import { Spinner } from '@/components/ui/spinner'
+import { checkStudentExists } from "@/services/checkStudentService";
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
@@ -35,6 +36,13 @@ export default function Residency() {
       const currentTimestamp = new Date()
 
       try {
+        const exists = await checkStudentExists(studentId);
+        if (!exists) {
+          alert("Student UID not found.");
+          setIsLoading(false);
+          return;
+        }
+
         const alreadyTimedIn = await hasActiveLogToday(studentId)
         if (alreadyTimedIn) {
           await handleTimeOut(studentId, currentTimestamp)
