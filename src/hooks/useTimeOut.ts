@@ -5,7 +5,7 @@ export function useTimeOut() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function handleTimeOut(studentId: number, timeOut: Date) {
+  async function handleTimeOut(studentId: string, timeOut: Date) {
     try {
       await addTimeOut(studentId, timeOut);
       setIsLoading(false);

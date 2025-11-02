@@ -5,7 +5,7 @@ export function useTimeIn() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   
-  async function handleTimeIn(studentId: number, timeIn: Date, residencyType: string) {
+  async function handleTimeIn(studentId: string, timeIn: Date, residencyType: string) {
     try {
       await addTimeIn(studentId, timeIn, residencyType);
       setIsLoading(false);
