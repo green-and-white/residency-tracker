@@ -7,12 +7,25 @@ export function generateRandomCode(): number {
 export async function createLoginCode() {
   const code = generateRandomCode();
 
-  const { error } = await supabase.from("logincodes").insert({ code })
+  const { data, error } = await supabase.from("logincodes").insert({ code }).select().single()
 
   if (error) {
     console.error("Error creating login code:", error);
     throw new Error("Unable to generate code.");
   }
+
+  setTimeout(async () => {
+    try {
+      const { error: delError } = await supabase
+        .from("logincodes")
+        .delete()
+        .eq("id", data.id);
+
+      if (delError) console.error("Error deleting expired login code:", delError);
+    } catch (err) {
+      console.error("Unexpected error deleting login code:", err);
+    }
+  }, 600000);
 
   return code;
 }
