@@ -1,12 +1,43 @@
 import gwLogo from '@/assets/gw_logo.png'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { verifyLoginCode } from '@/services/loginCodeService'
+import { Spinner } from '@/components/ui/spinner'
 
 export default function EnterCode() {
+    const [codeInput, setCodeInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+        const isValid = await verifyLoginCode(Number(codeInput));
+
+        if (isValid) {
+            navigate("/residency", { replace: true });
+        } else {
+            alert("Invalid login code");
+        }
+        } catch (err) {
+            console.error(err);
+            alert("Error verifying code");
+        } finally {
+            setIsLoading(false);
+            setCodeInput("");
+        }
+    };
+
     return (
         <main className='flex flex-col justify-center items-center min-h-screen space-y-4'>
             <img src={gwLogo} alt="gwLogo" className='h-32 w-auto' />
             <div>
-                <input type="password" placeholder='Enter code here' className='border rounded-sm px-2 py-1' required/>
-                <button className='m-2 border rounded-sm p-1 cursor-pointer hover:bg-gray-100 transition'>Submit</button>
+                <input type="password" value={codeInput} onChange={(e) => setCodeInput(e.target.value)} placeholder='Enter code here' className='border rounded-sm px-2 py-1' required/>
+                <button onClick={handleSubmit} className='m-2 border rounded-sm p-1 cursor-pointer hover:bg-gray-100 transition'>
+                     {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
+                </button>
             </div>
         </main>
     )
