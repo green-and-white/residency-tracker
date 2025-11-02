@@ -31,10 +31,10 @@ export default function Residency() {
         const alreadyTimedIn = await hasActiveLogToday(studentId)
         if (alreadyTimedIn) {
           await handleTimeOut(studentId, currentTimestamp)
-          toast.success('Succesfully timed out.', { description: "Enjoy the rest of your day!" })
+          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 5000 })
         } else {
           await handleTimeIn(studentId, currentTimestamp, residencyType)
-          toast.success('Successfully timed in.', { description: "Glad to see you!" })
+          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 5000 })
         }
 
         setStudentId("")
