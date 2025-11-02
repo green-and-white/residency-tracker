@@ -5,6 +5,7 @@ import { hasActiveLogToday } from "@/services/residencyService";
 import { useTimeIn } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
+import { useNavigate } from "react-router-dom"
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
@@ -13,6 +14,8 @@ export default function Residency() {
 
     const { handleTimeIn } = useTimeIn()
     const { handleTimeOut } = useTimeOut()
+
+    const navigate = useNavigate();
 
     const options = [
       { value: "core", label: "Core" },
@@ -40,6 +43,10 @@ export default function Residency() {
         setStudentId("")
         setSurname("")
         setResidencyType(null)
+
+        setTimeout(() => {
+          navigate("/", { replace: true })
+        }, 5000)
 
       } catch (err) {
         console.error(err)
