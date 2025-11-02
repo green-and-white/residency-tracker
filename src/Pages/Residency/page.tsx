@@ -7,11 +7,13 @@ import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
 import { useNavigate } from "react-router-dom"
 import { destroySession } from "@/utils/session";
+import { Spinner } from '@/components/ui/spinner'
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
     const [surname, setSurname] = useState("")
     const [residencyType, setResidencyType] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(false);
 
     const { handleTimeIn } = useTimeIn()
     const { handleTimeOut } = useTimeOut()
@@ -29,6 +31,7 @@ export default function Residency() {
         return;
       }
 
+      setIsLoading(true)
       const currentTimestamp = new Date()
 
       try {
@@ -53,6 +56,8 @@ export default function Residency() {
       } catch (err) {
         console.error(err)
         alert('An error occured.')
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -77,7 +82,9 @@ export default function Residency() {
                 </div>
               </div>
               <div>
-                <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-56 mt-20 cursor-pointer hover:bg-gray-100 transition'>Submit</button>
+                <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-56 mt-20 cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
+                  {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
+                </button>
               </div>
             </div>
             <div>
