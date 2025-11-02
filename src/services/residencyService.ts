@@ -14,7 +14,7 @@ export async function fetchResidencyLogs() {
 }
 // TODO: add subscribe service to listen to real time changes (if needed)
 
-export async function addTimeIn(studentId: number, timeIn: Date, residencyType: string) {
+export async function addTimeIn(studentId: string, timeIn: Date, residencyType: string) {
   const { error } = await supabase
     .from('residencylogs')
     .insert({
@@ -29,7 +29,7 @@ export async function addTimeIn(studentId: number, timeIn: Date, residencyType: 
   }
 }
 
-export async function addTimeOut(studentId: number, timeOut: Date) {
+export async function addTimeOut(studentId: string, timeOut: Date) {
   const { error } = await supabase
     .from('residencylogs')
     .update({ time_out: timeOut.toISOString() })
