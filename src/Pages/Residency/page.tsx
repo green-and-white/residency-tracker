@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Select from 'react-select'
-import gwLogo from '../../assets/gw_logo.png'
-import { hasActiveLogToday } from "../../services/residencyService";
-import { useTimeIn } from '../../hooks/useTimeIn'
-import { useTimeOut } from '../../hooks/useTimeOut'
+import gwLogo from '@/assets/gw_logo.png'
+import { hasActiveLogToday } from "@/services/residencyService";
+import { useTimeIn } from '@/hooks/useTimeIn'
+import { useTimeOut } from '@/hooks/useTimeOut'
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")

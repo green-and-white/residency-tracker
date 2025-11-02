@@ -1,4 +1,4 @@
-import gwLogo from '../../assets/gw_logo.png'
+import gwLogo from '@/assets/gw_logo.png'
 
 export default function EnterCode() {
     return (

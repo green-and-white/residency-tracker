@@ -1,6 +1,6 @@
-import gwLogo from '../../assets/gw_logo.png'
-import gwebLogo from '../../assets/g&web_logo.png'
-import residencyTrackerLogo from '../../assets/residency_tracker_logo.png'
+import gwLogo from '@/assets/gw_logo.png'
+import gwebLogo from '@/assets/g&web_logo.png'
+import residencyTrackerLogo from '@/assets/residency_tracker_logo.png'
 import { Link } from 'react-router-dom'
 
 export default function Main() {
