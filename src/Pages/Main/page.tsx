@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { createLoginCode } from '@/services/loginCodeService'
 import { useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
+import { createSession } from '@/utils/session'
 
 export default function Main() {
     const navigate = useNavigate()
@@ -13,6 +14,7 @@ export default function Main() {
     const handleClick = async () => {
         setIsLoading(true)
         try {
+            createSession()
             await createLoginCode()
             navigate('/entercode', { replace: true })
         } catch (err) {

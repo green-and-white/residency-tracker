@@ -6,6 +6,7 @@ import { useTimeIn } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
 import { useNavigate } from "react-router-dom"
+import { destroySession } from "@/utils/session";
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
@@ -45,6 +46,7 @@ export default function Residency() {
         setResidencyType(null)
 
         setTimeout(() => {
+          destroySession();
           navigate("/", { replace: true })
         }, 5000)
 
