@@ -4,6 +4,7 @@ import gwLogo from '@/assets/gw_logo.png'
 import { hasActiveLogToday } from "@/services/residencyService";
 import { useTimeIn } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
+import { Toaster, toast } from 'sonner'
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
@@ -30,10 +31,10 @@ export default function Residency() {
         const alreadyTimedIn = await hasActiveLogToday(studentId)
         if (alreadyTimedIn) {
           await handleTimeOut(studentId, currentTimestamp)
-          alert('Successfully timed out.')
+          toast.success('Succesfully timed out.', { description: "Enjoy the rest of your day!" })
         } else {
           await handleTimeIn(studentId, currentTimestamp, residencyType)
-          alert('Successfully timed in.')
+          toast.success('Successfully timed in.', { description: "Glad to see you!" })
         }
 
         setStudentId("")
@@ -47,6 +48,8 @@ export default function Residency() {
     }
 
     return (
+        <>
+        <Toaster position="top-right" />
         <main className="flex flex-col items-center min-h-screen space-y-4">
             <img src={gwLogo} alt="gwLogo" className='h-30 w-auto'/>
             <div className="m-5 space-y-5">
@@ -99,5 +102,6 @@ export default function Residency() {
             { error && <p>{error}</p> }  
             { isTimedOut && <p>Logged time out at {currentTimestamp.toISOString()}</p>} */}
         </main>
+        </>
     )
 }
