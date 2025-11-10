@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Select from 'react-select'
+// import Select from 'react-select'
 import gwLogo from '@/assets/gw_logo.png'
 import { hasActiveLogToday } from "@/services/residencyService";
-import { useTimeIn } from '@/hooks/useTimeIn'
+import { useTimeInCore } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
 import { useNavigate } from "react-router-dom"
@@ -13,21 +13,20 @@ import { checkStudentExists } from "@/services/checkStudentService";
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
     const [surname, setSurname] = useState("")
-    const [residencyType, setResidencyType] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false);
 
-    const { handleTimeIn } = useTimeIn()
+    const { handleTimeIn } = useTimeInCore()
     const { handleTimeOut } = useTimeOut()
 
     const navigate = useNavigate();
 
-    const options = [
-      { value: "core", label: "Core" },
-      { value: "ancillary", label: "Ancillary" },
-    ];
+    // const options = [
+    //   { value: "core", label: "Core" },
+    //   { value: "ancillary", label: "Ancillary" },
+    // ];
 
     const handleSubmit = async () => {
-      if (!studentId || !residencyType){
+      if (!studentId){
         alert("Please fill in all the fields.")
         return;
       }
@@ -46,30 +45,20 @@ export default function Residency() {
         const activeLog = await hasActiveLogToday(studentId);
 
         if (activeLog) {
-          // If student is timing out, ensure residency type matches
-          if (activeLog.residency_type !== residencyType) {
-            alert(`Cannot time out. Original time-in was "${activeLog.residency_type}". Please select the correct residency type.`);
-            setIsLoading(false);
-            return;
-          }
-
-          // Time out
           await handleTimeOut(studentId, currentTimestamp);
-          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 5000 });
+          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 2000 });
         } else {
-          // Time in
-          await handleTimeIn(studentId, currentTimestamp, residencyType);
-          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 5000 });
+          await handleTimeIn(studentId, currentTimestamp);
+          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 2000 });
         }
 
         setStudentId("")
         setSurname("")
-        setResidencyType(null)
 
         setTimeout(() => {
           destroySession();
           navigate("/", { replace: true })
-        }, 5000)
+        }, 2000)
 
       } catch (err) {
         console.error(err)
@@ -93,12 +82,12 @@ export default function Residency() {
                 <p className='mb-2'>Surname</p>
                 <input type="text" value={surname} onChange={(e) => setSurname(e.target.value)} placeholder="Enter your surname" className="border px-3 py-2 w-56 rounded-sm" />
               </div>
-              <div className='flex flex-col'>
+              {/* <div className='flex flex-col'>
                 <p className='mb-2'>Residency type</p>
                 <div className='w-56'>
                   <Select options={options} placeholder="Select" value={options.find((o) => o.value === residencyType) || null} onChange={(option) => setResidencyType(option?.value ?? null)} className='border rounded-sm' />
                 </div>
-              </div>
+              </div> */}
               <div>
                 <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-56 mt-20 cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
                   {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}

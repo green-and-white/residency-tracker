@@ -1,18 +1,40 @@
 import { useEffect, useState } from "react";
 import { getTotalHoursPerStudent } from "@/services/residencyService";
 import type { StudentHours } from "@/services/residencyService";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { Spinner } from "@/components/ui/spinner";
 
 export default function PublicView() {
   const [totals, setTotals] = useState<StudentHours[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCommittee, setSelectedCommittee] = useState<string>("all");
+  const [searchName, setSearchName] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+
+  const requiredHours: Record<string, number> = {
+    customercare: 18,
+    layout: 12,
+    literary: 12,
+    marketing: 12,
+    office: 18,
+    photo: 12,
+    web: 12
+  };
+
+  function formatHM(hours: number) {
+    const h = Math.floor(hours);
+    let m = Math.round((hours - h) * 60);
+    if (m === 60) {
+      return `${h + 1}h 0m`;
+    }
+    return `${h}h ${m}m`;
+  }
+
+  function getHoursRemaining(student: StudentHours) {
+    const key = student.committee.toLowerCase();
+    const required = requiredHours[key];
+    const diff = required - student.total_hours;
+    return diff > 0 ? formatHM(diff) : "0h 0m";
+  }
 
   useEffect(() => {
     async function fetchTotals() {
@@ -30,72 +52,78 @@ export default function PublicView() {
   }, []);
 
   if (loading)
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Spinner className="w-12 h-12" />
-    </div>
-  );
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner className="w-12 h-12" />
+      </div>
+    );
 
   const committees = Array.from(new Set(totals.map((s) => s.committee)));
 
-  const filteredTotals =
-    selectedCommittee === "all"
-      ? totals
-      : totals.filter((s) => s.committee === selectedCommittee);
+  const filteredTotals = totals.filter((s) => {
+    const matchesCommittee =
+      selectedCommittee === "all" || s.committee === selectedCommittee;
+
+    const searchLower = searchName.toLowerCase();
+    const nameLower = s.name.toLowerCase();
+
+    const matchesSearch = nameLower.includes(searchLower);
+
+    return matchesCommittee && matchesSearch;
+  });
 
   return (
     <div className="p-4">
-      <div className="w-155 mb-8">
-        <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-            <AccordionTrigger>View shift details</AccordionTrigger>
-            <AccordionContent>
-            Each staffer must render the following: <br />
-            2 to 2.5 hours per week = <strong>4 to 5 shifts</strong><br />
-            Office & Customer Care | 4 to 4.5 hours per week = <strong>9 shifts</strong>
-            </AccordionContent>
-        </AccordionItem>
-        </Accordion>
-        <Accordion type="single" collapsible>
-        <AccordionItem value="item-2">
-            <AccordionTrigger>View booth guidelines</AccordionTrigger>
-            <AccordionContent>
-            Fill up the empty or single occupied slots first. <br />
-            At least 1 Office/CC/tenured member must be present during booth manning. <br />
-            There needs to be at least 1 person assigned to the yearbook claiming and one for the registration. <br />
-            There must be at least 2 to 3 people manning the booth at a time.
-            </AccordionContent>
-        </AccordionItem>
-        </Accordion>
-      </div>
+      <div className="flex justify-between mb-5 mt-2">
+        {/* Dropdown filter */}
+        <div className="mb-4">
+          <label htmlFor="committee" className="mr-2 font-medium">
+            Filter by Committee:
+          </label>
+          <select
+            id="committee"
+            value={selectedCommittee}
+            onChange={(e) => {setSelectedCommittee(e.target.value); setSearchName("");}}
+            className="border px-2 py-1 rounded"
+          >
+            <option value="all">All</option>
+            {committees.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {/* Dropdown filter */}
-      <div className="mb-4">
-        <label htmlFor="committee" className="mr-2 font-medium">
-          Filter by Committee:
-        </label>
-        <select
-          id="committee"
-          value={selectedCommittee}
-          onChange={(e) => setSelectedCommittee(e.target.value)}
-          className="border px-2 py-1 rounded"
-        >
-          <option value="all">All</option>
-          {committees.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <div>
+          <input
+            type="text"
+            placeholder="Enter name"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {if (e.key == "Enter"){setSearchName(searchInput)}}}
+            className="border-2 rounded-sm px-2 py-1"
+          />
+          <button
+            onClick={() => setSearchName(searchInput)}
+            className="border-2 rounded-sm mx-2 p-1 cursor-pointer hover:bg-gray-100 transition"
+          >
+            Search
+          </button>
+        </div>
       </div>
 
       {/* Table */}
-      <table className="min-w-full border border-gray-300">
+      <table className="table-fixed w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
             <th className="border px-4 py-2 text-left">Name</th>
             <th className="border px-4 py-2 text-left">Committee</th>
-            <th className="border px-4 py-2 text-left">Total Hours</th>
+            <th className="border px-4 py-2 text-left">Hours Rendered</th>
+            <th className="border px-4 py-2 text-left">
+              Hours Remaining (
+              {new Date().toLocaleString("default", { month: "long" })})
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -103,7 +131,15 @@ export default function PublicView() {
             <tr key={student.name} className="hover:bg-gray-50">
               <td className="border px-4 py-2">{student.name}</td>
               <td className="border px-4 py-2">{student.committee}</td>
-              <td className="border px-4 py-2">{student.total_hours.toFixed(2)}</td>
+
+              {/* Convert decimal hours rendered */}
+              <td className="border px-4 py-2">
+                {formatHM(student.total_hours)}
+              </td>
+
+              <td className="border px-4 py-2">
+                {getHoursRemaining(student)}
+              </td>
             </tr>
           ))}
         </tbody>

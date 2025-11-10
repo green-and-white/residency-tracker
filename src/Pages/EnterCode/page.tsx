@@ -1,13 +1,14 @@
 import gwLogo from '@/assets/gw_logo.png'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { verifyLoginCode, createLoginCode } from '@/services/loginCodeService'
+import { verifyLoginCode } from '@/services/loginCodeService'
 import { Spinner } from '@/components/ui/spinner'
+import { createSession } from '@/utils/session'
 
 export default function EnterCode() {
     const [codeInput, setCodeInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [resendCooldown, setResendCooldown] = useState(0);
+    // const [resendCooldown, setResendCooldown] = useState(0);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -18,6 +19,7 @@ export default function EnterCode() {
         const isValid = await verifyLoginCode(Number(codeInput));
 
         if (isValid) {
+            createSession()
             navigate("/residency", { replace: true });
         } else {
             alert("Invalid login code");
@@ -31,24 +33,24 @@ export default function EnterCode() {
         }
     };
 
-    const handleResend = async () => {
-        try {
-        await createLoginCode();
-        setResendCooldown(10);
-        } catch (err) {
-        console.error(err);
-        alert("Failed to resend login code");
-        }
-    };
+    // const handleResend = async () => {
+    //     try {
+    //     await createLoginCode();
+    //     setResendCooldown(10);
+    //     } catch (err) {
+    //     console.error(err);
+    //     alert("Failed to resend login code");
+    //     }
+    // };
 
-    useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const timer = setInterval(() => {
-      setResendCooldown((prev) => prev - 1);
-    }, 1000);
+//     useEffect(() => {
+//     if (resendCooldown <= 0) return;
+//     const timer = setInterval(() => {
+//       setResendCooldown((prev) => prev - 1);
+//     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
+//     return () => clearInterval(timer);
+//   }, [resendCooldown]);
 
     return (
         <main className='flex flex-col justify-center items-center min-h-screen space-y-4'>
@@ -59,7 +61,7 @@ export default function EnterCode() {
                      {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
                 </button>
             </div>
-            <div className='flex flex-col items-center mt-20'>
+            {/* <div className='flex flex-col items-center mt-20'>
                 <p>Didn't receive it?</p>
                 <button
                 onClick={handleResend}
@@ -70,7 +72,7 @@ export default function EnterCode() {
                     ? `Regenerate in ${resendCooldown}s`
                     : "Get a new code"}
                 </button>
-            </div>
+            </div> */}
         </main>
     )
 }
