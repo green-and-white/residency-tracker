@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { verifyLoginCode } from '@/services/loginCodeService'
 import { Spinner } from '@/components/ui/spinner'
+import { createSession } from '@/utils/session'
 
 export default function EnterCode() {
     const [codeInput, setCodeInput] = useState("");
@@ -18,6 +19,7 @@ export default function EnterCode() {
         const isValid = await verifyLoginCode(Number(codeInput));
 
         if (isValid) {
+            createSession()
             navigate("/residency", { replace: true });
         } else {
             alert("Invalid login code");

@@ -15,7 +15,7 @@ function App() {
           <Route path='/' element={<Main/>}/>
           <Route path='/residency' element={<ProtectedRoute><Residency/></ProtectedRoute>}/>
           <Route path='/publicview' element={<PublicView/>}/>
-          <Route path='/entercode' element={<ProtectedRoute><EnterCode/></ProtectedRoute>}/>
+          <Route path='/entercode' element={<EnterCode/>}/>
         </Routes>
       </BrowserRouter>
     </>
