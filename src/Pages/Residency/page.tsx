@@ -55,11 +55,11 @@ export default function Residency() {
 
           // Time out
           await handleTimeOut(studentId, currentTimestamp);
-          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 5000 });
+          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 2000 });
         } else {
           // Time in
           await handleTimeIn(studentId, currentTimestamp);
-          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 5000 });
+          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 2000 });
         }
 
         setStudentId("")
@@ -69,7 +69,7 @@ export default function Residency() {
         setTimeout(() => {
           destroySession();
           navigate("/", { replace: true })
-        }, 5000)
+        }, 2000)
 
       } catch (err) {
         console.error(err)
