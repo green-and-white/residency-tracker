@@ -13,7 +13,6 @@ import { checkStudentExists } from "@/services/checkStudentService";
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
     const [surname, setSurname] = useState("")
-    const [residencyType, setResidencyType] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false);
 
     const { handleTimeIn } = useTimeInCore()
@@ -27,7 +26,7 @@ export default function Residency() {
     // ];
 
     const handleSubmit = async () => {
-      if (!studentId || !residencyType){
+      if (!studentId){
         alert("Please fill in all the fields.")
         return;
       }
@@ -46,25 +45,15 @@ export default function Residency() {
         const activeLog = await hasActiveLogToday(studentId);
 
         if (activeLog) {
-          // If student is timing out, ensure residency type matches
-          if (activeLog.residency_type !== residencyType) {
-            alert(`Cannot time out. Original time-in was "${activeLog.residency_type}". Please select the correct residency type.`);
-            setIsLoading(false);
-            return;
-          }
-
-          // Time out
           await handleTimeOut(studentId, currentTimestamp);
           toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 2000 });
         } else {
-          // Time in
           await handleTimeIn(studentId, currentTimestamp);
           toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 2000 });
         }
 
         setStudentId("")
         setSurname("")
-        setResidencyType(null)
 
         setTimeout(() => {
           destroySession();
