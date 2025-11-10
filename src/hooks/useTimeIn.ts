@@ -1,13 +1,30 @@
 import { useState } from "react";
 import { addTimeIn } from "../services/residencyService";
 
-export function useTimeIn() {
+export function useTimeInCore() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   
-  async function handleTimeIn(studentId: string, timeIn: Date, residencyType: string) {
+  async function handleTimeIn(studentId: string, timeIn: Date) {
     try {
-      await addTimeIn(studentId, timeIn, residencyType);
+      await addTimeIn(studentId, timeIn, "core");
+      setIsLoading(false);
+    } catch (err) {
+      setError(String(err));
+      setIsLoading(false);
+    }
+  }
+ 
+  return { handleTimeIn, isLoading, error };
+}
+
+export function useTimeInAncillary() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  
+  async function handleTimeIn(studentId: string, timeIn: Date) {
+    try {
+      await addTimeIn(studentId, timeIn, "ancillary");
       setIsLoading(false);
     } catch (err) {
       setError(String(err));

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Select from 'react-select'
+// import Select from 'react-select'
 import gwLogo from '@/assets/gw_logo.png'
 import { hasActiveLogToday } from "@/services/residencyService";
-import { useTimeIn } from '@/hooks/useTimeIn'
+import { useTimeInCore } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
 import { useNavigate } from "react-router-dom"
@@ -16,15 +16,15 @@ export default function Residency() {
     const [residencyType, setResidencyType] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false);
 
-    const { handleTimeIn } = useTimeIn()
+    const { handleTimeIn } = useTimeInCore()
     const { handleTimeOut } = useTimeOut()
 
     const navigate = useNavigate();
 
-    const options = [
-      { value: "core", label: "Core" },
-      { value: "ancillary", label: "Ancillary" },
-    ];
+    // const options = [
+    //   { value: "core", label: "Core" },
+    //   { value: "ancillary", label: "Ancillary" },
+    // ];
 
     const handleSubmit = async () => {
       if (!studentId || !residencyType){
@@ -58,7 +58,7 @@ export default function Residency() {
           toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 5000 });
         } else {
           // Time in
-          await handleTimeIn(studentId, currentTimestamp, residencyType);
+          await handleTimeIn(studentId, currentTimestamp);
           toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 5000 });
         }
 
@@ -93,12 +93,12 @@ export default function Residency() {
                 <p className='mb-2'>Surname</p>
                 <input type="text" value={surname} onChange={(e) => setSurname(e.target.value)} placeholder="Enter your surname" className="border px-3 py-2 w-56 rounded-sm" />
               </div>
-              <div className='flex flex-col'>
+              {/* <div className='flex flex-col'>
                 <p className='mb-2'>Residency type</p>
                 <div className='w-56'>
                   <Select options={options} placeholder="Select" value={options.find((o) => o.value === residencyType) || null} onChange={(option) => setResidencyType(option?.value ?? null)} className='border rounded-sm' />
                 </div>
-              </div>
+              </div> */}
               <div>
                 <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-56 mt-20 cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
                   {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
