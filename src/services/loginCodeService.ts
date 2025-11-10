@@ -57,3 +57,17 @@ export async function verifyLoginCode(codeInput: number) {
 
   return true; // code is correct
 }
+
+export async function getLoginCode() {
+    const { data, error } = await supabase
+    .from("logincodes")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(1)
+
+    if (error) {
+        console.log(error)
+    }
+
+    return data
+}
