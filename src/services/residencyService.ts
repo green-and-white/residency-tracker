@@ -8,6 +8,14 @@ export interface ActiveLog {
   residency_type: string;
 }
 
+export interface RunningLog{
+  student_name: string;
+  time_in: string;
+  committee: string;
+  residency_type: string;
+  student_uid: string;
+}
+
 export async function fetchResidencyLogs() {
   const { data, error } = await supabase
     .from("residencylogs")
@@ -125,4 +133,39 @@ export async function getTotalHoursPerStudent(): Promise<StudentHours[]> {
     total_hours: data.total_hours,
     committee: data.committee,
   }));
+}
+
+export async function getActiveResidencyLogs(): Promise<RunningLog[]> {
+
+  //Query all logs within the current day that have no time_out value
+
+  const today = new Date(); 
+  const start = today.setHours(0, 0, 0, 0);
+  const end = today.setHours(23, 59, 59, 999);
+
+  const { data, error } = await supabase
+    .from("residencylogs")
+    .select("time_in, students(name, committee), residency_type, student_uid")
+    .gte("time_in", new Date(start).toISOString())
+    .lte("time_in", new Date(end).toISOString()) 
+    .eq("residency_type", "core")
+    .is("time_out", null);
+
+  if (error) {
+    console.error("Service Error: getActiveResidencyLogs", error);
+    throw new Error("Could not retrieve active residency logs.");
+  }
+
+  const formattedLogs: RunningLog[] = (data || []).map((log: any) => {
+    const student = Array.isArray(log.students) ? log.students[0] : log.students;
+    return {
+      student_name: student?.name ?? "Unknown",
+      time_in: log.time_in,
+      committee: student?.committee ?? "Unknown",
+      residency_type: log.residency_type,
+      student_uid: log.student_uid
+    };
+  });
+
+  return formattedLogs;
 }
