@@ -7,8 +7,31 @@ import Admin from './Pages/Admin/page.tsx'
 import GetCode from './Pages/GetCode/page.tsx'
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import ProtectedRoute from './components/ProtectedRoute.tsx'
+import { useState, useEffect } from 'react'
+import supabase from './utils/supabase.ts'
+import type { Session } from '@supabase/supabase-js'
 
 function App() {
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setCurrentSession(session));
+  
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentSession(session);
+    });
+
+    return () => subscription.unsubscribe(); 
+
+  }, []);
+
+  if (!currentSession) {
+    console.log("No session in progress."); // TODO: Turn this into a component/error page
+  } else {
+    console.log("LOGGED IN AS:", currentSession.user.email);
+  }
 
   return (
     <>
