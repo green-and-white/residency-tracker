@@ -2,7 +2,7 @@ import gwLogo from '@/assets/gw_logo.png'
 import gwebLogo from '@/assets/g&web_logo.png'
 import residencyTrackerLogo from '@/assets/residency_tracker_logo.png'
 import { Link } from 'react-router-dom'
-import { LoginButton } from '@/components/ui/login'
+import { LoginButton } from '@/components/ui/auth'
 
 export default function Main() {
 
@@ -11,9 +11,7 @@ export default function Main() {
             <img src={gwLogo} alt="gwLogo" className='h-32 w-auto' />
             <img src={residencyTrackerLogo} alt="residencyTrackerLogo" className='h-32 w-auto'/>
             <div className='flex flex-col items-center w-60'>
-                
                 <LoginButton /> 
-                                
                 <Link to="/publicview" className="underline text-center w-full">
                 View public residency records
                 </Link>

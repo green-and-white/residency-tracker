@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { verifyLoginCode } from '@/services/loginCodeService'
 import { Spinner } from '@/components/ui/spinner'
 import { createSession } from '@/utils/session'
-import { SessionContext } from '@/App'
+import useSession from '@/hooks/useSession'
 
 export default function EnterCode() {
     const [codeInput, setCodeInput] = useState("");
@@ -12,7 +12,7 @@ export default function EnterCode() {
     // const [resendCooldown, setResendCooldown] = useState(0);
     const navigate = useNavigate();
 
-    const session = useContext(SessionContext);
+    const session = useSession();
     console.log("EnterCode:", session?.user.email);
 
     const handleSubmit = async (e: React.FormEvent) => {

@@ -6,39 +6,13 @@ import EnterCode from './Pages/EnterCode/page.tsx'
 import Admin from './Pages/Admin/page.tsx'
 import GetCode from './Pages/GetCode/page.tsx'
 import ProtectedRoute from './components/ProtectedRoute.tsx'
-
-import supabase from './utils/supabase.ts'
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { useState, useEffect, createContext } from 'react'
-import type { Session } from '@supabase/supabase-js'
-
-export const SessionContext = createContext<Session | null >(null);
+import { SessionProvider } from './components/ui/auth.tsx'
 
 function App() {
-  const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setCurrentSession(session));
-  
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setCurrentSession(session);
-    });
-
-    return () => subscription.unsubscribe(); 
-
-  }, []);
-
-  if (!currentSession) {
-    console.log("No session in progress."); // TODO: Turn this into a component/error page
-  } else {
-    console.log("LOGGED IN AS:", currentSession.user.email);
-  }
-
   return (
     <>
-      <SessionContext.Provider value={currentSession}>
+      <SessionProvider>
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Main/>}/>
@@ -49,7 +23,7 @@ function App() {
             <Route path='/getcode' element={<ProtectedRoute><GetCode/></ProtectedRoute>} />
           </Routes>
         </BrowserRouter>
-      </SessionContext.Provider>
+      </SessionProvider>
     </>
   )
 }
