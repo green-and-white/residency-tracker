@@ -1,15 +1,19 @@
 import gwLogo from '@/assets/gw_logo.png'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { verifyLoginCode } from '@/services/loginCodeService'
 import { Spinner } from '@/components/ui/spinner'
 import { createSession } from '@/utils/session'
+import { SessionContext } from '@/App'
 
 export default function EnterCode() {
     const [codeInput, setCodeInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     // const [resendCooldown, setResendCooldown] = useState(0);
     const navigate = useNavigate();
+
+    const session = useContext(SessionContext);
+    console.log("EnterCode:", session?.user.email);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

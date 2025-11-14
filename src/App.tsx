@@ -5,15 +5,18 @@ import PublicView from './Pages/PublicView/page.tsx'
 import EnterCode from './Pages/EnterCode/page.tsx'
 import Admin from './Pages/Admin/page.tsx'
 import GetCode from './Pages/GetCode/page.tsx'
-import { BrowserRouter, Routes, Route } from "react-router-dom"
 import ProtectedRoute from './components/ProtectedRoute.tsx'
-import { useState, useEffect } from 'react'
+
 import supabase from './utils/supabase.ts'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { useState, useEffect, createContext } from 'react'
 import type { Session } from '@supabase/supabase-js'
+
+export const SessionContext = createContext<Session | null >(null);
 
 function App() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
-
+  
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setCurrentSession(session));
   
@@ -35,16 +38,18 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Main/>}/>
-          <Route path='/residency' element={<ProtectedRoute><Residency/></ProtectedRoute>}/>
-          <Route path='/publicview' element={<PublicView/>}/>
-          <Route path='/entercode' element={<EnterCode/>}/>
-          <Route path='/admin' element={<Admin/>}/>
-          <Route path='/getcode' element={<ProtectedRoute><GetCode/></ProtectedRoute>} />
-        </Routes>
-      </BrowserRouter>
+      <SessionContext.Provider value={currentSession}>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<Main/>}/>
+            <Route path='/residency' element={<ProtectedRoute><Residency/></ProtectedRoute>}/>
+            <Route path='/publicview' element={<PublicView/>}/>
+            <Route path='/entercode' element={<EnterCode/>}/>
+            <Route path='/admin' element={<Admin/>}/>
+            <Route path='/getcode' element={<ProtectedRoute><GetCode/></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </SessionContext.Provider>
     </>
   )
 }
