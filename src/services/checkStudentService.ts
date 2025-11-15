@@ -9,3 +9,18 @@ export async function checkStudentExists(uid: string): Promise<boolean> {
 
   return !!data; // true if exists, false if not
 }
+
+export async function fetchStudentAuthByEmail(email?: string) {
+  const { data, error } = await supabase
+    .from('students')
+    .select('is_authorized')
+    .eq('email', email)
+    .single();
+
+  if (error) {
+    console.error("Service Error: fetchStudentAuthByEmail", error);
+    throw new Error("Unable to find student with given email address.");
+  }
+
+  return data;
+}
