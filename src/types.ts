@@ -20,3 +20,19 @@ export type Student = {
     "web"
   ; // committee_type
 }
+
+export interface ActiveLog {
+  id: number;
+  student_uid: string;
+  time_in: string;
+  time_out: string | null;
+  residency_type: string;
+}
+
+export interface RunningLog{
+  student_name: string;
+  time_in: string;
+  committee: string;
+  residency_type: string;
+  student_uid: string;
+}
