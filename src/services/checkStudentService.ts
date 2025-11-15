@@ -22,5 +22,5 @@ export async function fetchStudentAuthByEmail(email?: string) {
     throw new Error("Unable to find student with given email address.");
   }
 
-  return data;
+  return data.is_authorized;
 }
