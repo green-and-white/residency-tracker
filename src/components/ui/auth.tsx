@@ -7,14 +7,23 @@ import { fetchStudentAuthByEmail } from "@/services/checkStudentService";
 
 export function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const pass = import.meta.env.VITE_APP_PASSWORD;
 
   const handleClick = async () => {
-    setIsLoading(true); 
-    await supabase.auth.signOut();
+    setIsLoading(true);
+
+    const password = prompt("Please enter code:")
+  
+    console.log(pass)   
+    if (password === pass) {
+      console.log("SUCCESS")
+      setIsLoading(false); 
+      // await supabase.auth.signOut();
+    }
   }
 
   return (
-    <button onClick={handleClick} className='border-2 w-full mb-8 rounded-xl px-6 py-2 cursor-pointer hover:bg-gray-100 transition flex justify-center items-center'>
+    <button onClick={handleClick} className='border w-full mb-8 rounded-md px-6 py-2 cursor-pointer hover:bg-gray-100 transition flex justify-center items-center'>
       {isLoading ? <Spinner className="h-5 w-5 text-gray-600" /> : "End today's residency session."}
     </button>
   );
