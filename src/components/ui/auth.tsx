@@ -57,9 +57,9 @@ export function SessionProvider({ children }: { children : React.ReactNode }) {
     async function checkAuthorization() {
       if (currentSession?.user.email) {
         const isStudentAuthorized = await fetchStudentAuthByEmail(currentSession?.user.email);
-
-        if (isStudentAuthorized) {
-          console.log("Student is not authorized to start a session. Signing out.")  
+        
+        if (!isStudentAuthorized) {
+          console.log("Student is not authorized to start a session. Signing out."); // TODO: Change this into a pop-up.  
           await supabase.auth.signOut();
           setCurrentSession(null);
         }
