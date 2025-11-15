@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-// import Select from 'react-select'
 import gwLogo from '@/assets/gw_logo.png'
-import { type ActiveLog, type RunningLog, addTimeOut, hasActiveLogToday } from "@/services/residencyService";
+import { type RunningLog, addTimeOut, hasActiveLogToday } from "@/services/residencyService";
 import { useTimeInCore } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
-// import { useNavigate } from "react-router-dom"
-// import { destroySession } from "@/utils/session";
 import { Spinner } from '@/components/ui/spinner'
 import { checkStudentExists } from "@/services/checkStudentService";
 import { getActiveResidencyLogs } from "@/services/residencyService";
+import { LogoutButton } from "@/components/ui/auth";
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
@@ -18,12 +16,6 @@ export default function Residency() {
     const { handleTimeIn } = useTimeInCore()
     const { handleTimeOut } = useTimeOut()
 
-    //const navigate = useNavigate();
-
-    // const options = [
-    //   { value: "core", label: "Core" },
-    //   { value: "ancillary", label: "Ancillary" },
-    // ];
     const fetchLogs = async () => {
       const data = await getActiveResidencyLogs();
       console.log(data)
@@ -46,6 +38,7 @@ export default function Residency() {
       await addTimeOut(studentId, new Date());
       await fetchLogs();
     }
+    
     const handleSubmit = async () => {
       if (!studentId){
         alert("Please fill in all the fields.")
@@ -100,43 +93,18 @@ export default function Residency() {
                       onCopy={(e) => e.preventDefault()}
                       className="border px-3 py-2 w-sm rounded-sm" />
               </div>
-            <div>
-                <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
-                  {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
-                </button>
+              <div>
+                  <button onClick={handleSubmit} className='mb-2 border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
+                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
+                  </button>
+                
+                  <LogoutButton />
+                </div>
               </div>
-            </div>
             <div>
           </div>
-
-            {/* For Testing */}
-            {/* <div className="flex gap-2">
-                <button 
-                  className={`border p-2 ${!isTimedOut && "bg-gray-300 cursor-not-allowed line-through"}`}
-                  disabled={!isTimedOut}
-                  onClick={async () => {
-                    await handleTimeIn(20250001, currentTimestamp, "core");
-                    setIsTimedOut(false)
-                  }}
-                >Time in</button>  
-
-                <button
-                  className={`border p-2 ${isTimedOut && "bg-gray-300 cursor-not-allowed line-through"}`}
-                  disabled={isTimedOut}
-                  onClick={async () => {
-                    await handleTimeOut(20250001, currentTimestamp); 
-                    setIsTimedOut(true);
-                    // Note: check supabase to check reflection!
-                  }} 
-                >Time out</button> 
-            </div> 
-            
-            { !isLoading &&
-              <p>Logged time-in at {currentTimestamp.toISOString()}</p>
-            }
-            { error && <p>{error}</p> }  
-            { isTimedOut && <p>Logged time out at {currentTimestamp.toISOString()}</p>} */}
           </div>
+          
           {/* Table */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Active Residency Logs</h2>
@@ -174,6 +142,7 @@ export default function Residency() {
                 )}
               </tbody>
             </table>
+          
           </div>
         </main>
         </>
