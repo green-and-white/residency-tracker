@@ -96,7 +96,7 @@ export default function Residency() {
               </div>
               <div className="flex flex-col items-center">
                   <button onClick={handleSubmit} className='mb-2 border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
-                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Tap to start/end residency"}
+                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit UID to start/end residency"}
                   </button>
 
                   <LogoutButton />
