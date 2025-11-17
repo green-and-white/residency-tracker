@@ -10,6 +10,7 @@ import { checkStudentExists } from "@/services/checkStudentService";
 import { fetchActiveResidencyLogs } from "@/services/residencyService";
 import { LogoutButton } from "@/components/ui/auth";
 import { AdminPromptBox } from "@/components/ui/residency";
+import { Link } from "react-router-dom";
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
@@ -93,12 +94,16 @@ export default function Residency() {
                 
                 {!isStudentFound && <p className='mt-1 text-xs italic text-red-600'>*Student UID not found. Please check field entry.</p>}
               </div>
-              <div>
+              <div className="flex flex-col items-center">
                   <button onClick={handleSubmit} className='mb-2 border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
                     {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Tap to start/end residency"}
                   </button>
-                
+
                   <LogoutButton />
+                  <Link to="/publicview" className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full">
+                    View public residency records
+                  </Link> 
+                  
                 </div>
               </div>
             <div>
