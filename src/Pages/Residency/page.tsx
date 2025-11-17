@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import gwLogo from '@/assets/gw_logo.png'
-import { type RunningLog, addTimeOut, hasActiveLogToday } from "@/services/residencyService";
+import { addTimeOut, hasActiveLogToday } from "@/services/residencyService";
+import type { RunningLog } from "@/types";
 import { useTimeInCore } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
 import { checkStudentExists } from "@/services/checkStudentService";
-import { getActiveResidencyLogs } from "@/services/residencyService";
+import { fetchActiveResidencyLogs } from "@/services/residencyService";
 import { LogoutButton } from "@/components/ui/auth";
 
 export default function Residency() {
@@ -17,7 +18,7 @@ export default function Residency() {
     const { handleTimeOut } = useTimeOut()
 
     const fetchLogs = async () => {
-      const data = await getActiveResidencyLogs();
+      const data = await fetchActiveResidencyLogs();
       console.log(data)
       setActiveLogs(data);
     }
