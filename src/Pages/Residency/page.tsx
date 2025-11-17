@@ -9,17 +9,19 @@ import { Spinner } from '@/components/ui/spinner'
 import { checkStudentExists } from "@/services/checkStudentService";
 import { fetchActiveResidencyLogs } from "@/services/residencyService";
 import { LogoutButton } from "@/components/ui/auth";
+import { AdminPromptBox } from "@/components/ui/residency";
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
     const [isLoading, setIsLoading] = useState(false);
     const [activeLogs, setActiveLogs] = useState<RunningLog[]>([]);
+    const [isStudentFound, setIsStudentFound] = useState(true);
     const { handleTimeIn } = useTimeInCore()
     const { handleTimeOut } = useTimeOut()
 
     const fetchLogs = async () => {
       const data = await fetchActiveResidencyLogs();
-      console.log(data)
+      // console.log(data)
       setActiveLogs(data);
     }
 
@@ -28,31 +30,22 @@ export default function Residency() {
       fetchLogs();
     }, [])
     
-    const handleTimeOutTable = async (studentId: string) => {
-      //prompt for passwword through window prompt
-      const password = window.prompt("Enter admin password to time out:");
-      
-      if (password !== "OrrelWana") {
-        alert("Incorrect password. Time out aborted.");
-        return;
-      }
+    const handleTimeOutTable = async (studentId: string) => { 
       await addTimeOut(studentId, new Date());
       await fetchLogs();
+      setIsStudentFound(true);
     }
     
-    const handleSubmit = async () => {
-      if (!studentId){
-        alert("Please fill in all the fields.")
-        return;
-      }
-
+    const handleSubmit = async () => { 
+      setIsStudentFound(true);
       setIsLoading(true)
       const currentTimestamp = new Date()
 
       try {
         const exists = await checkStudentExists(studentId);
         if (!exists) {
-          alert("Student UID not found.");
+          // alert("Student UID not found.");
+          setIsStudentFound(false); 
           setIsLoading(false);
           return;
         }
@@ -69,12 +62,14 @@ export default function Residency() {
 
         setStudentId("")
         await fetchLogs();
+        setIsStudentFound(true);
 
       } catch (err) {
         console.error(err)
         alert('An error occured.')
       } finally {
         setIsLoading(false)
+        setStudentId("")
       }
     }
 
@@ -84,7 +79,7 @@ export default function Residency() {
         <main className="flex flex-col lg:flex-row items-center justify-center min-h-screen space-y-4">
           <div className = "flex flex-col items-center">
             <img src={gwLogo} alt="gwLogo" className='h-30 w-auto'/>
-            <div className="m-5 space-y-4">
+            <div className="m-4 space-y-6">
               <div className='flex flex-col'>
                 <p className='mb-2'>Student UID</p>
                 <input type="password" 
@@ -92,11 +87,15 @@ export default function Residency() {
                       onChange={(e) => setStudentId(e.target.value)}
                       placeholder="Click here when scanning ID" 
                       onCopy={(e) => e.preventDefault()}
-                      className="border px-3 py-2 w-sm rounded-sm" />
+                      className="border px-3 py-2 w-sm rounded-sm"
+                      required 
+                />
+                
+                {!isStudentFound && <p className='mt-1 text-xs italic text-red-600'>*Student UID not found. Please check field entry.</p>}
               </div>
               <div>
                   <button onClick={handleSubmit} className='mb-2 border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
-                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
+                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Tap to start/end residency"}
                   </button>
                 
                   <LogoutButton />
@@ -133,10 +132,10 @@ export default function Residency() {
                       <td className="border border-gray-300 px-4 py-2">{new Date(log.time_in).toLocaleString()}</td>
                       <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
                       <td className = "border border-gray-300 px-4 py-2">
-                        <button className ="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mg-4"
-                                onClick={async() => handleTimeOutTable(log.student_uid)}>
-                          Time Out
-                        </button>
+                        <AdminPromptBox 
+                          onTimeOut={async() => handleTimeOutTable(log.student_uid)}
+                          // setIsStudentFound={setIsStudentFound(false)} 
+                        /> 
                       </td>
                     </tr>
                   ))
