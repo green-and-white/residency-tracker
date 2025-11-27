@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { fetchResidencyLogs } from "../services/residencyService";
-import type { ResidencyLog } from "../types";
+import { fetchResidencyLogs, fetchActiveResidencyLogs } from "../services/residencyService";
+import type { ResidencyLog, RunningLog } from "../types";
 
 export function useResidencyLogs() {
   const [logs, setLogs] = useState<ResidencyLog[]>([]);
@@ -23,4 +23,28 @@ export function useResidencyLogs() {
   }, []);  
 
   return { logs, isLoading, error }
+}
+
+export function useActiveResidencyLogs() {
+  const [activeLogs, setActiveLogs] = useState<RunningLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function getActiveResidencyLogs() {
+      try {
+        const data = await fetchActiveResidencyLogs();
+        setActiveLogs(data);
+        setIsLoading(false);
+      } catch (err) {
+        setError(String(err));
+        setIsLoading(false);
+      }
+    }
+  
+    getActiveResidencyLogs();
+  }, []);
+  
+
+  return { activeLogs, isLoading, error };
 }

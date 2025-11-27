@@ -1,32 +1,28 @@
 import { useEffect, useState } from "react";
-// import Select from 'react-select'
 import gwLogo from '@/assets/gw_logo.png'
-import { type ActiveLog, type RunningLog, addTimeOut, hasActiveLogToday } from "@/services/residencyService";
+import { addTimeOut, hasActiveLogToday } from "@/services/residencyService";
+import type { RunningLog } from "@/types";
 import { useTimeInCore } from '@/hooks/useTimeIn'
 import { useTimeOut } from '@/hooks/useTimeOut'
 import { Toaster, toast } from 'sonner'
-// import { useNavigate } from "react-router-dom"
-// import { destroySession } from "@/utils/session";
 import { Spinner } from '@/components/ui/spinner'
 import { checkStudentExists } from "@/services/checkStudentService";
-import { getActiveResidencyLogs } from "@/services/residencyService";
+import { fetchActiveResidencyLogs } from "@/services/residencyService";
+import { LogoutButton } from "@/components/ui/auth";
+import { AdminPromptBox } from "@/components/ui/residency";
+import { Link } from "react-router-dom";
 
 export default function Residency() {
     const [studentId, setStudentId] = useState("")
     const [isLoading, setIsLoading] = useState(false);
     const [activeLogs, setActiveLogs] = useState<RunningLog[]>([]);
+    const [isStudentFound, setIsStudentFound] = useState(true);
     const { handleTimeIn } = useTimeInCore()
     const { handleTimeOut } = useTimeOut()
 
-    //const navigate = useNavigate();
-
-    // const options = [
-    //   { value: "core", label: "Core" },
-    //   { value: "ancillary", label: "Ancillary" },
-    // ];
     const fetchLogs = async () => {
-      const data = await getActiveResidencyLogs();
-      console.log(data)
+      const data = await fetchActiveResidencyLogs();
+      // console.log(data)
       setActiveLogs(data);
     }
 
@@ -35,30 +31,22 @@ export default function Residency() {
       fetchLogs();
     }, [])
     
-    const handleTimeOutTable = async (studentId: string) => {
-      //prompt for passwword through window prompt
-      const password = window.prompt("Enter admin password to time out:");
-      
-      if (password !== "OrrelWana") {
-        alert("Incorrect password. Time out aborted.");
-        return;
-      }
+    const handleTimeOutTable = async (studentId: string) => { 
       await addTimeOut(studentId, new Date());
       await fetchLogs();
+      setIsStudentFound(true);
     }
-    const handleSubmit = async () => {
-      if (!studentId){
-        alert("Please fill in all the fields.")
-        return;
-      }
-
+    
+    const handleSubmit = async () => { 
+      setIsStudentFound(true);
       setIsLoading(true)
       const currentTimestamp = new Date()
 
       try {
         const exists = await checkStudentExists(studentId);
         if (!exists) {
-          alert("Student UID not found.");
+          // alert("Student UID not found.");
+          setIsStudentFound(false); 
           setIsLoading(false);
           return;
         }
@@ -75,12 +63,14 @@ export default function Residency() {
 
         setStudentId("")
         await fetchLogs();
+        setIsStudentFound(true);
 
       } catch (err) {
         console.error(err)
         alert('An error occured.')
       } finally {
         setIsLoading(false)
+        setStudentId("")
       }
     }
 
@@ -90,7 +80,7 @@ export default function Residency() {
         <main className="flex flex-col lg:flex-row items-center justify-center min-h-screen space-y-4">
           <div className = "flex flex-col items-center">
             <img src={gwLogo} alt="gwLogo" className='h-30 w-auto'/>
-            <div className="m-5 space-y-4">
+            <div className="m-4 space-y-6">
               <div className='flex flex-col'>
                 <p className='mb-2'>Student UID</p>
                 <input type="password" 
@@ -98,45 +88,28 @@ export default function Residency() {
                       onChange={(e) => setStudentId(e.target.value)}
                       placeholder="Click here when scanning ID" 
                       onCopy={(e) => e.preventDefault()}
-                      className="border px-3 py-2 w-sm rounded-sm" />
+                      className="border px-3 py-2 w-sm rounded-sm"
+                      required 
+                />
+                
+                {!isStudentFound && <p className='mt-1 text-xs italic text-red-600'>*Student UID not found. Please check field entry.</p>}
+              </div>
+              <div className="flex flex-col items-center">
+                  <button onClick={handleSubmit} className='mb-2 border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
+                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit UID to start/end residency"}
+                  </button>
+
+                  <LogoutButton />
+                  <Link to="/publicview" className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full">
+                    View public residency records
+                  </Link> 
+                  
+                </div>
               </div>
             <div>
-                <button onClick={handleSubmit} className='border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
-                  {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit"}
-                </button>
-              </div>
-            </div>
-            <div>
           </div>
-
-            {/* For Testing */}
-            {/* <div className="flex gap-2">
-                <button 
-                  className={`border p-2 ${!isTimedOut && "bg-gray-300 cursor-not-allowed line-through"}`}
-                  disabled={!isTimedOut}
-                  onClick={async () => {
-                    await handleTimeIn(20250001, currentTimestamp, "core");
-                    setIsTimedOut(false)
-                  }}
-                >Time in</button>  
-
-                <button
-                  className={`border p-2 ${isTimedOut && "bg-gray-300 cursor-not-allowed line-through"}`}
-                  disabled={isTimedOut}
-                  onClick={async () => {
-                    await handleTimeOut(20250001, currentTimestamp); 
-                    setIsTimedOut(true);
-                    // Note: check supabase to check reflection!
-                  }} 
-                >Time out</button> 
-            </div> 
-            
-            { !isLoading &&
-              <p>Logged time-in at {currentTimestamp.toISOString()}</p>
-            }
-            { error && <p>{error}</p> }  
-            { isTimedOut && <p>Logged time out at {currentTimestamp.toISOString()}</p>} */}
           </div>
+          
           {/* Table */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Active Residency Logs</h2>
@@ -164,16 +137,17 @@ export default function Residency() {
                       <td className="border border-gray-300 px-4 py-2">{new Date(log.time_in).toLocaleString()}</td>
                       <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
                       <td className = "border border-gray-300 px-4 py-2">
-                        <button className ="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mg-4"
-                                onClick={async() => handleTimeOutTable(log.student_uid)}>
-                          Time Out
-                        </button>
+                        <AdminPromptBox 
+                          onTimeOut={async() => handleTimeOutTable(log.student_uid)}
+                          // setIsStudentFound={setIsStudentFound(false)} 
+                        /> 
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          
           </div>
         </main>
         </>
