@@ -1,20 +1,5 @@
 import supabase from "../utils/supabase";
-
-export interface ActiveLog {
-  id: number;
-  student_uid: string;
-  time_in: string;
-  time_out: string | null;
-  residency_type: string;
-}
-
-export interface RunningLog{
-  student_name: string;
-  time_in: string;
-  committee: string;
-  residency_type: string;
-  student_uid: string;
-}
+import type { ActiveLog, RunningLog } from "@/types";
 
 export async function fetchResidencyLogs() {
   const { data, error } = await supabase
@@ -135,7 +120,7 @@ export async function getTotalHoursPerStudent(): Promise<StudentHours[]> {
   }));
 }
 
-export async function getActiveResidencyLogs(): Promise<RunningLog[]> {
+export async function fetchActiveResidencyLogs(): Promise<RunningLog[]> {
 
   //Query all logs within the current day that have no time_out value
 
