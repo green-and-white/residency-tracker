@@ -70,6 +70,11 @@ export default function Residency() {
   };
 
   const handleSubmit = async (uid: string) => {
+    if (!selectedOption) {
+      alert("Please select a location before scanning your ID.");
+      return;
+    }
+
     setIsStudentFound(true);
     setIsLoading(true)
     const currentTimestamp = new Date()
@@ -92,7 +97,7 @@ export default function Residency() {
           duration: 2000
         });
       } else {
-        await handleTimeIn(uid, currentTimestamp);
+        await handleTimeIn(uid, currentTimestamp, selectedOption!.value);
         toast.success('Successfully timed in.', {
           description: "Glad to see you!",
           duration: 2000

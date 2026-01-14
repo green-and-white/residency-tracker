@@ -15,13 +15,14 @@ export async function fetchResidencyLogs() {
 }
 // TODO: add subscribe service to listen to real time changes (if needed)
 
-export async function addTimeIn(studentId: string, timeIn: Date, residencyType: string) {
+export async function addTimeIn(studentId: string, timeIn: Date, residencyType: string, location: string) {
   const { error } = await supabase
     .from('residencylogs')
     .insert({
       student_uid: studentId,
       time_in: timeIn.toISOString(),
-      residency_type: residencyType
+      residency_type: residencyType,
+      location: location
     });
   
   if (error) {

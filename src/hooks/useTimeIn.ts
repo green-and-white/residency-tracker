@@ -5,9 +5,9 @@ export function useTimeInCore() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   
-  async function handleTimeIn(studentId: string, timeIn: Date) {
+  async function handleTimeIn(studentId: string, timeIn: Date, location: string) {
     try {
-      await addTimeIn(studentId, timeIn, "core");
+      await addTimeIn(studentId, timeIn, "core", location);
       setIsLoading(false);
     } catch (err) {
       setError(String(err));
@@ -18,19 +18,19 @@ export function useTimeInCore() {
   return { handleTimeIn, isLoading, error };
 }
 
-export function useTimeInAncillary() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+// export function useTimeInAncillary() {
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState("");
   
-  async function handleTimeIn(studentId: string, timeIn: Date) {
-    try {
-      await addTimeIn(studentId, timeIn, "ancillary");
-      setIsLoading(false);
-    } catch (err) {
-      setError(String(err));
-      setIsLoading(false);
-    }
-  }
+//   async function handleTimeIn(studentId: string, timeIn: Date) {
+//     try {
+//       await addTimeIn(studentId, timeIn, "ancillary");
+//       setIsLoading(false);
+//     } catch (err) {
+//       setError(String(err));
+//       setIsLoading(false);
+//     }
+//   }
  
-  return { handleTimeIn, isLoading, error };
-}
+//   return { handleTimeIn, isLoading, error };
+// }
