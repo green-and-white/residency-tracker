@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import gwLogo from '@/assets/gw_logo.png'
 import { addTimeOut, hasActiveLogToday } from "@/services/residencyService";
 import type { RunningLog } from "@/types";
@@ -12,144 +12,180 @@ import { LogoutButton } from "@/components/ui/auth";
 import { AdminPromptBox } from "@/components/ui/residency";
 import { Link } from "react-router-dom";
 
+const UID_LENGTH = 10
+
 export default function Residency() {
-    const [studentId, setStudentId] = useState("")
-    const [isLoading, setIsLoading] = useState(false);
-    const [activeLogs, setActiveLogs] = useState<RunningLog[]>([]);
-    const [isStudentFound, setIsStudentFound] = useState(true);
-    const { handleTimeIn } = useTimeInCore()
-    const { handleTimeOut } = useTimeOut()
+  const [studentId, setStudentId] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeLogs, setActiveLogs] = useState<RunningLog[]>([]);
+  const [isStudentFound, setIsStudentFound] = useState(true);
+  const { handleTimeIn } = useTimeInCore()
+  const { handleTimeOut } = useTimeOut()
 
-    const fetchLogs = async () => {
-      const data = await fetchActiveResidencyLogs();
-      // console.log(data)
-      setActiveLogs(data);
-    }
+  const inputRef = useRef<HTMLInputElement>(null)
+  const submittedRef = useRef(false)
 
-    useEffect(() => {
-      //get active residency logs on initial render and every submit
-      fetchLogs();
-    }, [])
-    
-    const handleTimeOutTable = async (studentId: string) => { 
-      await addTimeOut(studentId, new Date());
+  const fetchLogs = async () => {
+    const data = await fetchActiveResidencyLogs()
+    // console.log(data)
+    setActiveLogs(data);
+  };
+
+  useEffect(() => {
+    //get active residency logs on initial render and every submit
+    fetchLogs();
+  }, [])
+
+  const handleTimeOutTable = async (studentId: string) => {
+    await addTimeOut(studentId, new Date());
+    await fetchLogs();
+    setIsStudentFound(true);
+  };
+
+  const handleSubmit = async (uid: string) => {
+    setIsStudentFound(true);
+    setIsLoading(true)
+    const currentTimestamp = new Date()
+
+    try {
+      const exists = await checkStudentExists(uid);
+      if (!exists) {
+        // alert("Student UID not found.");
+        setIsStudentFound(false);
+        setIsLoading(false);
+        return;
+      }
+
+      const activeLog = await hasActiveLogToday(uid);
+
+      if (activeLog) {
+        await handleTimeOut(uid, currentTimestamp);
+        toast.success('Successfully timed out.', {
+          description: "Enjoy the rest of your day!",
+          duration: 2000
+        });
+      } else {
+        await handleTimeIn(uid, currentTimestamp);
+        toast.success('Successfully timed in.', {
+          description: "Glad to see you!",
+          duration: 2000
+        });
+      }
+
+      setStudentId("")
       await fetchLogs();
       setIsStudentFound(true);
+
+    } catch (err) {
+      console.error(err)
+      alert('An error occurred.')
+    } finally {
+      setIsLoading(false)
+      setStudentId("")
+      submittedRef.current = false
+      inputRef.current?.focus()
     }
-    
-    const handleSubmit = async () => { 
-      setIsStudentFound(true);
-      setIsLoading(true)
-      const currentTimestamp = new Date()
+  };
 
-      try {
-        const exists = await checkStudentExists(studentId);
-        if (!exists) {
-          // alert("Student UID not found.");
-          setIsStudentFound(false); 
-          setIsLoading(false);
-          return;
-        }
+  const handleScanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
 
-        const activeLog = await hasActiveLogToday(studentId);
+    if (value.length > UID_LENGTH) return;
+    setStudentId(value)
 
-        if (activeLog) {
-          await handleTimeOut(studentId, currentTimestamp);
-          toast.success('Successfully timed out.', { description: "Enjoy the rest of your day!", duration: 2000 });
-        } else {
-          await handleTimeIn(studentId, currentTimestamp);
-          toast.success('Successfully timed in.', { description: "Glad to see you!", duration: 2000 });
-        }
-
-        setStudentId("")
-        await fetchLogs();
-        setIsStudentFound(true);
-
-      } catch (err) {
-        console.error(err)
-        alert('An error occured.')
-      } finally {
-        setIsLoading(false)
-        setStudentId("")
-      }
+    if (value.length === UID_LENGTH && !submittedRef.current) {
+      submittedRef.current = true
+      handleSubmit(value)
     }
+  };
 
-    return (
-        <>
-        <Toaster position="top-right" />
-        <main className="flex flex-col lg:flex-row items-center justify-center min-h-screen space-y-4">
-          <div className = "flex flex-col items-center">
-            <img src={gwLogo} alt="gwLogo" className='h-30 w-auto'/>
-            <div className="m-4 space-y-6">
-              <div className='flex flex-col'>
-                <p className='mb-2'>Student UID</p>
-                <input type="password" 
-                      value={studentId}
-                      onChange={(e) => setStudentId(e.target.value)}
-                      placeholder="Click here when scanning ID" 
-                      onCopy={(e) => e.preventDefault()}
-                      className="border px-3 py-2 w-sm rounded-sm"
-                      required 
-                />
-                
-                {!isStudentFound && <p className='mt-1 text-xs italic text-red-600'>*Student UID not found. Please check field entry.</p>}
+  return (
+    <>
+      <Toaster position="top-right" />
+      <main className="flex flex-col lg:flex-row items-center justify-center min-h-screen space-y-4">
+        <div className="flex flex-col items-center">
+          <img src={gwLogo} alt="gwLogo" className="h-30 w-auto" />
+
+          <div className="m-4 space-y-6">
+            <div className="flex flex-col">
+              {!isStudentFound && <p className="mt-1 text-xs italic text-red-600">*Student not found.</p>}
+
+              <div
+                onClick={() => inputRef.current?.focus()}
+                className="cursor-pointer select-none px-4 py-6 w-sm rounded-sm bg-white text-gray-400 text-center
+                           border-2 border-gray-300 hover:border-green-500 active:border-green-600 active:border-3"
+              >
+                Click here before scanning your ID
               </div>
-              <div className="flex flex-col items-center">
-                  <button onClick={handleSubmit} className='mb-2 border rounded-sm px-3 py-2 w-sm cursor-pointer hover:bg-gray-100 transition flex items-center justify-center'>
-                    {isLoading ? <Spinner className="h-4 w-auto text-gray-600" /> : "Submit UID to start/end residency"}
-                  </button>
 
-                  <LogoutButton />
-                  <Link to="/publicview" className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full">
-                    View public residency records
-                  </Link> 
-                  
+              <input
+                ref={inputRef}
+                type="password"
+                value={studentId}
+                onChange={handleScanChange}
+                onCopy={(e) => e.preventDefault()}
+                className="absolute opacity-0 w-sm"
+                autoComplete="off"
+              />
+            </div>
+
+            <div className="flex flex-col items-center">
+              {isLoading && (
+                <div className="mb-2 flex items-center justify-center">
+                  <Spinner className="h-4 w-auto text-gray-600" />
                 </div>
-              </div>
-            <div>
+              )}
+
+              <LogoutButton />
+
+              <Link
+                to="/publicview"
+                className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full"
+              >
+                View public residency records
+              </Link>
+            </div>
           </div>
-          </div>
-          
-          {/* Table */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Active Residency Logs</h2>
-            <table className="min-w-full border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-gray-300 px-4 py-2">Name</th>
-                  <th className="border border-gray-300 px-4 py-2">Time in</th>
-                  <th className="border border-gray-300 px-4 py-2">Committee</th>
-                  <th className="border border-gray-300 px-4 py-2">Action</th>
+        </div>
+
+        {/* Table */}
+        <div>
+          <table className="min-w-full border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2">Name</th>
+                <th className="border border-gray-300 px-4 py-2">Committee</th>
+                <th className="border border-gray-300 px-4 py-2">Time in</th>
+                <th className="border border-gray-300 px-4 py-2">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Render active residency logs here */}
+              {activeLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="border border-gray-300 px-4 py-2 text-center">
+                    No active residency logs.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {/* Render active residency logs here */}
-                {activeLogs.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="border border-gray-300 px-4 py-2 text-center">
-                      No active residency logs.
+              ) : (
+                activeLogs.map((log, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-300 px-4 py-2">{log.student_name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
+                    <td className="border border-gray-300 px-4 py-2">{new Date(log.time_in).toLocaleString()}</td>
+                    <td className = "border border-gray-300 px-4 py-2">
+                      <AdminPromptBox 
+                        onTimeOut={async() => handleTimeOutTable(log.student_uid)}
+                        // setIsStudentFound={setIsStudentFound(false)} 
+                      /> 
                     </td>
                   </tr>
-                ) : (
-                  activeLogs.map((log, index) => (
-                    <tr key={index}>
-                      <td className="border border-gray-300 px-4 py-2">{log.student_name}</td>
-                      <td className="border border-gray-300 px-4 py-2">{new Date(log.time_in).toLocaleString()}</td>
-                      <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
-                      <td className = "border border-gray-300 px-4 py-2">
-                        <AdminPromptBox 
-                          onTimeOut={async() => handleTimeOutTable(log.student_uid)}
-                          // setIsStudentFound={setIsStudentFound(false)} 
-                        /> 
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          
-          </div>
-        </main>
-        </>
-    )
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </>
+  );
 }
