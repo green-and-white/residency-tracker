@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { getTotalHoursPerStudent } from "@/services/residencyService";
 import type { StudentHours } from "@/services/residencyService";
 import { Spinner } from "@/components/ui/spinner";
-import useSession from "@/hooks/useSession";
+// import useSession from "@/hooks/useSession";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function PublicView() {
   const [totals, setTotals] = useState<StudentHours[]>([]);
@@ -12,7 +12,8 @@ export default function PublicView() {
   const [selectedCommittee, setSelectedCommittee] = useState<string>("all");
   const [searchName, setSearchName] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const session = useSession();
+  // const session = useSession();
+  const navigate = useNavigate()
 
   const requiredHours: Record<string, number> = {
     customercare: 18,
@@ -81,15 +82,12 @@ export default function PublicView() {
       <div className="flex justify-between mb-5 mt-2">
         {/* Dropdown filter */}
         <div className="mb-4 flex gap-2">
-          { session ?
-            (<Link to="/residency" className="flex text-xs text-gray-600 hover:text-green-600 w-fit">
-              <ArrowLeft />
-            </Link>) : (
-            <Link to="/" className="flex text-xs text-gray-600 hover:text-green-600 w-fit">
-              <ArrowLeft />
-            </Link>
-            ) 
-          }
+          <button
+            onClick={() => navigate(-1)} // -1 goes back to the previous page
+            className="flex text-xs text-gray-600 hover:text-green-600 w-fit"
+          >
+            <ArrowLeft />
+          </button>
           <div>
             <label htmlFor="committee" className="mr-2 font-medium">
               Filter by Committee:
