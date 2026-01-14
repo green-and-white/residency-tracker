@@ -113,8 +113,8 @@ export function LoginButton() {
   } 
   
   return (
-    <button onClick={handleClick} className='border-2 w-full mb-8 rounded-xl px-6 py-2 cursor-pointer hover:bg-gray-100 transition flex justify-center items-center'>
-      {isLoading ? <Spinner className="h-5 w-5 text-gray-600" /> : "Start today's residency session."}
+    <button onClick={handleClick} className='bg-black text-white border-2 w-68 mb-8 rounded-xl px-6 py-2 cursor-pointer hover:bg-zinc-700 transition flex justify-center items-center'>
+      {isLoading ? <Spinner className="h-5 w-5 text-gray-600" /> : "Start Residency Session"}
     </button>
   );
 }
