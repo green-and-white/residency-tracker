@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import gwLogo from '@/assets/gw_logo.png'
+import gwHorizontalBlack from '@/assets/gwlogo_horizontal_black.svg'
 import { addTimeOut, hasActiveLogToday } from "@/services/residencyService";
 import type { RunningLog } from "@/types";
 import { useTimeInCore } from '@/hooks/useTimeIn'
@@ -11,6 +11,7 @@ import { fetchActiveResidencyLogs } from "@/services/residencyService";
 import { LogoutButton } from "@/components/ui/auth";
 import { AdminPromptBox } from "@/components/ui/residency";
 import { Link } from "react-router-dom";
+import Select, { type SingleValue } from 'react-select'
 
 const UID_LENGTH = 10
 
@@ -21,6 +22,32 @@ export default function Residency() {
   const [isStudentFound, setIsStudentFound] = useState(true);
   const { handleTimeIn } = useTimeInCore()
   const { handleTimeOut } = useTimeOut()
+  const [currentTime, setCurrentTime] = useState<{ time: string }>({ time: "" });
+
+  type OptionType = {
+    value: string;
+    label: string;
+  };
+  const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
+
+  useEffect(() => {
+  const updateDateTime = () => {
+    const now = new Date();
+    setCurrentTime({
+      time: now.toLocaleTimeString("en-PH", {
+        timeZone: "Asia/Manila",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    });
+  };
+
+  updateDateTime(); // initialize immediately
+  const timer = setInterval(updateDateTime, 1000); // update every second
+
+  return () => clearInterval(timer);
+}, []);
+
 
   const inputRef = useRef<HTMLInputElement>(null)
   const submittedRef = useRef(false)
@@ -99,23 +126,81 @@ export default function Residency() {
     }
   };
 
-  return (
-    <>
-      <Toaster position="top-right" />
-      <main className="flex flex-col lg:flex-row items-center justify-center min-h-screen space-y-4">
-        <div className="flex flex-col items-center">
-          <img src={gwLogo} alt="gwLogo" className="h-30 w-auto" />
+  const options: OptionType[] = [
+    { value: 'Pictorials', label: 'Pictorials' },
+    { value: 'YB Frame Claiming', label: 'YB Frame Claiming' },
+    { value: 'Registration', label: 'Registration' },
+  ];
 
+  const handleSelection = (option: SingleValue<OptionType>) => {
+    setSelectedOption(option);
+    console.log(option);
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-gray-100">
+      <Toaster position="top-right" />
+      <div className="h-24 w-full px-8 border-b-2 border-gray-300 flex items-center justify-between bg-white">
+        <img
+          src={gwHorizontalBlack}
+          alt="gwHorizontalBlack"
+          className="h-11 w-auto"
+        />
+        <span className="text-2xl font-bold">
+          {currentTime.time}
+        </span>
+        <span className="text-lg text-gray-700">
+          {new Date().toLocaleDateString("en-PH", {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+          })}
+        </span>
+      </div>
+
+<div className="h-24 w-full bg-white px-8 flex items-center justify-between font-bold text-3xl">
+  <span className="ml-12">
+    {selectedOption ? selectedOption.label : "Choose location"}
+  </span>
+
+  <div className="flex items-center gap-2">
+    <Link
+      to="/publicview"
+      className="border rounded-md px-4 py-2 bg-gray-100 text-sm font-normal hover:bg-gray-300 transition"
+    >
+      View Residency Logs
+    </Link>
+
+    <div className="text-sm mt-8">
+      <LogoutButton />
+    </div>
+
+    <div className="w-40">
+      <Select
+        value={selectedOption}
+        onChange={handleSelection}
+        options={options}
+        placeholder="Select location"
+        className="text-sm"
+      />
+    </div>
+  </div>
+</div>
+
+
+      <div className="flex flex-row items-center justify-center space-y-4 overflow-auto">
+        <div className="flex flex-col items-center mt-15">
           <div className="m-4 space-y-6">
             <div className="flex flex-col">
               {!isStudentFound && <p className="mt-1 text-xs italic text-red-600">*Student not found.</p>}
 
               <div
                 onClick={() => inputRef.current?.focus()}
-                className="cursor-pointer select-none px-4 py-6 w-sm rounded-sm bg-white text-gray-400 text-center
+                className="cursor-pointer select-none px-12 py-28 w-sm rounded-sm bg-white text-black text-center
                            border-2 border-gray-300 hover:border-green-500 active:border-green-600 active:border-3"
               >
-                Click here before scanning your ID
+                Click here before scanning your ID <br />
+                <span className="text-gray-500">Scan your ID on the RFID sensor</span>
               </div>
 
               <input
@@ -136,13 +221,11 @@ export default function Residency() {
                 </div>
               )}
 
-              <LogoutButton />
-
               <Link
                 to="/publicview"
                 className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full"
               >
-                View public residency records
+                Don't have your student ID? Click here
               </Link>
             </div>
           </div>
@@ -172,7 +255,13 @@ export default function Residency() {
                   <tr key={index}>
                     <td className="border border-gray-300 px-4 py-2">{log.student_name}</td>
                     <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
-                    <td className="border border-gray-300 px-4 py-2">{new Date(log.time_in).toLocaleString()}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {new Date(`${log.time_in}Z`).toLocaleTimeString("en-PH", {
+                        timeZone: "Asia/Manila",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
                     <td className = "border border-gray-300 px-4 py-2">
                       <AdminPromptBox 
                         onTimeOut={async() => handleTimeOutTable(log.student_uid)}
@@ -185,7 +274,7 @@ export default function Residency() {
             </tbody>
           </table>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }
