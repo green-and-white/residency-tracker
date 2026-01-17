@@ -37,8 +37,8 @@ export function LogoutButton() {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button className='border w-full mb-8 rounded-md px-6 py-2 cursor-pointer hover:bg-gray-100 transition flex justify-center items-center'>
-          End today's residency session
+        <button className='border w-full mb-8 rounded-md px-6 py-2 cursor-pointer hover:bg-gray-300 transition flex justify-center items-center bg-gray-100 font-normal'>
+          End Session
         </button>
       </Dialog.Trigger>
       <Dialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-overlayShow" />
