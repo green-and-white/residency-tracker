@@ -226,12 +226,11 @@ export default function Residency() {
                 </div>
               )}
 
-              <Link
-                to="/publicview"
+              <a href="https://forms.gle/NJ1ACmyBTcYXjy5L8" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full"
               >
                 Don't have your student ID? Click here
-              </Link>
+              </a>
             </div>
           </div>
         </div>
