@@ -165,7 +165,7 @@ export default function Residency() {
 
 <div className="h-24 w-full bg-white px-8 flex items-center justify-between font-bold text-3xl">
   <span className="ml-12">
-    {selectedOption ? selectedOption.label : "Choose location"}
+    {selectedOption ? selectedOption.label : "Choose location first"}
   </span>
 
   <div className="flex items-center gap-2">
