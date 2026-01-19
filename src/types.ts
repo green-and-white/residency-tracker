@@ -36,3 +36,8 @@ export interface RunningLog{
   residency_type: string;
   student_uid: string;
 }
+
+export type OptionType = {
+  value: string;
+  label: string;
+}

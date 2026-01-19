@@ -12,6 +12,7 @@ import { AdminPromptBox } from "@/components/ui/residency";
 import { Link } from "react-router-dom";
 import Select, { type SingleValue } from 'react-select'
 import { Header } from "@/components/ui/header";
+import { type OptionType } from "@/types";
 
 const UID_LENGTH = 10
 
@@ -23,10 +24,6 @@ export default function Residency() {
   const { handleTimeIn } = useTimeInCore()
   const { handleTimeOut } = useTimeOut()
 
-  type OptionType = {
-    value: string;
-    label: string;
-  };
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null)
