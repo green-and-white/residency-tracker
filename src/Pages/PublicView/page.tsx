@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/ui/header";
 import Select, { type SingleValue } from 'react-select'
 import { type OptionType } from "@/types";
-import { ResidencyTable } from "@/components/ui/residency";
+import { ResidencyRecordsTable } from "@/components/ui/residency";
+import { useResidencyRecords } from "@/hooks/useResidencyLogs";
 // import { getTotalHoursPerStudent } from "@/services/residencyService";
 // import type { StudentHours } from "@/services/residencyService";
 // import { Spinner } from "@/components/ui/spinner";
@@ -12,7 +13,7 @@ import { ResidencyTable } from "@/components/ui/residency";
 
 export default function PublicView() {
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
-  
+  const records = useResidencyRecords() 
   const options: OptionType[] = [
     { value: "customerCare", label: "Customer Care" },
     { value: "layout", label: "Layout" },
@@ -22,7 +23,7 @@ export default function PublicView() {
     { value: "photo", label: "Photo" },
     { value: "web", label: "Web" }
   ];
- 
+
   const handleSelection = (option: SingleValue<OptionType>) => {
     setSelectedOption(option);
     console.log(option)
@@ -58,7 +59,7 @@ export default function PublicView() {
         </div>
       
         {/* Table */}
-        <ResidencyTable />
+        <ResidencyRecordsTable records={records.records} />
 
       </div> 
     </div>

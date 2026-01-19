@@ -91,9 +91,11 @@ export function AdminPromptBox({ onTimeOut }) {
   );
 }
 
-export function ResidencyTable() {
+// TODO: ADD TYPE
+export function ResidencyRecordsTable({ records }: { records: any[] }) {
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
-  
+  console.log("RECORDS:", records);
+
   return (
     <table className="flex-1">
       <tr className="text-left text-gray-500 border-2">
@@ -105,13 +107,17 @@ export function ResidencyTable() {
       </tr>
       
       <tbody>
-        <tr className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
-          { tableHeaders.map((header) => {
-            return (
-              <td className="p-4" key={header}>{header}</td>
-            );
-          })}
-        </tr>
+        { records.map((record) => {
+          return (
+            <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
+              <td className="p-4">{record.name}</td>
+              <td className="p-4">{record.committee}</td>
+              <td className="p-4">{record.core}</td>
+              <td className="p-4">{record.ancillary}</td>
+              <td className="p-4">{record.ancillary + record.core}</td>
+            </tr>
+          );
+        })}
       </tbody> 
     </table>
   );
