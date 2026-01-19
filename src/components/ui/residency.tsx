@@ -90,3 +90,30 @@ export function AdminPromptBox({ onTimeOut }) {
     </>
   );
 }
+
+export function ResidencyTable() {
+  
+  const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hourse Rendered"];
+  
+  return (
+    <table>
+      <tr>
+        { tableHeaders.map((header) => {
+          return (
+            <th key={header}>{header}</th>
+          );
+        })}  
+      </tr>
+      
+      <tbody>
+        <tr>
+          { tableHeaders.map((header) => {
+            return (
+              <td key={header}>{header}</td>
+            );
+          })}
+        </tr>
+      </tbody> 
+    </table>
+  );
+}

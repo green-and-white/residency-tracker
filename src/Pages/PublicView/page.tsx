@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/ui/header";
 import Select, { type SingleValue } from 'react-select'
 import { type OptionType } from "@/types";
+import { ResidencyTable } from "@/components/ui/residency";
 // import { getTotalHoursPerStudent } from "@/services/residencyService";
 // import type { StudentHours } from "@/services/residencyService";
 // import { Spinner } from "@/components/ui/spinner";
@@ -51,8 +52,8 @@ export default function PublicView() {
           </div>
         </div>
       
-        {/* Tables */}
-
+        {/* Table */}
+        <ResidencyTable />
 
       </div> 
     </div>
