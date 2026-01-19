@@ -16,15 +16,24 @@ export async function fetchResidencyLogs() {
 
 export async function fetchResidencyRecords() {
   const { data, error } = await supabase
-    .from("residencylogs")
+  .from("students")
     .select(`
-      residency_type,
-      hours,
-      students (
-        name,
-        committee 
+      name,
+      committee,
+      residencylogs (
+        residency_type,
+        hours 
       )
-    `);
+    `);  
+    // .from("residencylogs")
+    // .select(`
+    //   residency_type,
+    //   hours,
+    //   students (
+    //     name,
+    //     committee 
+    //   )
+    // `);
 
   if (error) {
     console.error("Service Error: fetchResidencyRecords", error);
@@ -33,18 +42,21 @@ export async function fetchResidencyRecords() {
 
   const totals = {};
   // TODO: create a type 
-  data.forEach((log) => {
-    const name = log.students?.name || "Unknown";
-    const committee = log.students?.committee || "N/A";  
-    const type = log.residency_type; 
-    const hours = Number(log.hours) || 0;
-
+  data.forEach((student) => {
+    const name = student.name || "Unknown";
+    const committee = student.committee || "N/A";
+    
     if (!totals[name]) {
       totals[name] = { name, committee, core: 0, ancillary: 0 };
     }
-
-    // Add the hours to the correct category
-    totals[name][type] += hours;
+    
+    student.residencylogs?.forEach((log) => {
+      const type = log.residency_type;
+      const hours = Number(log.hours) || 0;
+      
+      // Add the hours to the correct category
+      totals[name][type] += hours;
+    });
   });
 
 
