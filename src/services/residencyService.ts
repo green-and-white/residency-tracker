@@ -13,7 +13,42 @@ export async function fetchResidencyLogs() {
  
   return data || [];
 }
-// TODO: add subscribe service to listen to real time changes (if needed)
+
+export async function fetchResidencyRecords() {
+  const { data, error } = await supabase
+    .from("residencylogs")
+    .select(`
+      residency_type,
+      hours,
+      students (
+        name,
+        committee 
+      )
+    `);
+
+  if (error) {
+    console.error("Service Error: fetchResidencyRecords", error);
+    throw new Error("Could not retrieve residency records from database.");
+  }
+
+  const totals = {};
+  // TODO: create a type 
+  data.forEach((log) => {
+    const name = log.students?.name || "Unknown";
+    const type = log.residency_type; 
+    const hours = Number(log.hours) || 0;
+
+    if (!totals[name]) {
+      totals[name] = { name, core: 0, ancillary: 0 };
+    }
+
+    // Add the hours to the correct category
+    totals[name][type] += hours;
+  });
+
+
+  return Object.values(totals) || [];
+}
 
 export async function addTimeIn(studentId: string, timeIn: Date, residencyType: string, location: string) {
   const { error } = await supabase
