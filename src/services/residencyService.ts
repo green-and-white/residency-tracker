@@ -35,11 +35,12 @@ export async function fetchResidencyRecords() {
   // TODO: create a type 
   data.forEach((log) => {
     const name = log.students?.name || "Unknown";
+    const committee = log.students?.committee || "N/A";  
     const type = log.residency_type; 
     const hours = Number(log.hours) || 0;
 
     if (!totals[name]) {
-      totals[name] = { name, core: 0, ancillary: 0 };
+      totals[name] = { name, committee, core: 0, ancillary: 0 };
     }
 
     // Add the hours to the correct category
