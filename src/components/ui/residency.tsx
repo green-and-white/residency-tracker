@@ -92,24 +92,23 @@ export function AdminPromptBox({ onTimeOut }) {
 }
 
 export function ResidencyTable() {
-  
-  const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hourse Rendered"];
+  const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   
   return (
-    <table>
-      <tr>
+    <table className="flex-1">
+      <tr className="text-left text-gray-500 border-2">
         { tableHeaders.map((header) => {
           return (
-            <th key={header}>{header}</th>
+            <th className="p-4" key={header}>{header}</th>
           );
         })}  
       </tr>
       
       <tbody>
-        <tr>
+        <tr className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
           { tableHeaders.map((header) => {
             return (
-              <td key={header}>{header}</td>
+              <td className="p-4" key={header}>{header}</td>
             );
           })}
         </tr>
