@@ -31,17 +31,22 @@ export default function PublicView() {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <Header />
-      <div>
-        <h1>GW Residency</h1>
+      <div className="flex flex-col px-12 py-8 gap-6">
+        <h1 className="text-5xl font-bold">GW Residency</h1>
         
         {/* Search & Filter */}
-        <div>
-          <div>
-            <label htmlFor="stafferName">Staffer Name</label>
-            <input type="text" name="stafferName" /> 
+        <div className="grid grid-cols-2 gap-2 w-1/2 text-sm">
+          <div className="flex flex-col">
+            <label htmlFor="stafferName" className="font-semibold mb-1">Staffer Name</label>
+            <input 
+              name="stafferName"
+              type="text"
+              className="h-full border border-[#ccc] bg-white rounded-sm px-2"
+              placeholder="Juan de la Cruz"
+            /> 
           </div>
-          <div>
-            <label htmlFor="committee">Committee:</label>
+          <div className="flex flex-col">
+            <label htmlFor="committee" className="font-semibold mb-1">Committee</label>
             <Select
               value={selectedOption} 
               onChange={handleSelection} 
