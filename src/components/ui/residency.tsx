@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { Spinner } from "./spinner";
 import { Toaster, toast } from 'sonner';
 import type { StudentResidencyRecord } from "@/types";
+import { useNavigate } from "react-router-dom";
 
 export function AdminPromptBox({ onTimeOut }) {
   const [password, setPassword] = useState("");
@@ -96,6 +97,7 @@ export function ResidencyRecordsTable(
   { records, isLoading } :
   { records: StudentResidencyRecord[], isLoading: boolean })
 {
+  const navigate = useNavigate(); 
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 6;
@@ -119,6 +121,9 @@ export function ResidencyRecordsTable(
 
   const formatHours = (hours: number) => 
   `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`;
+
+  const formatSlug = (name: string) =>
+    name.toLowerCase().replace(/ /g, '-');
 
   const formatCommittee = (value: string) => {
     const options = {
@@ -157,14 +162,18 @@ export function ResidencyRecordsTable(
             </tr>
           ) : (
             currentRecords.map((record) => (
-              <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
-                <td className="p-4 w-1.5/5">{record.name}</td>
-                <td className="p-4">{formatCommittee(record.committee)}</td>
-                <td className="p-4">{formatHours(record.core)}</td>
-                <td className="p-4">{formatHours(record.ancillary)}</td>
-                {/* TODO CHANGE THIS PER MONTH: */}
-                <td className="p-4">{formatHours(record.ancillary + record.core)}</td>
-              </tr>
+                <tr 
+                  onClick={()=>navigate(`/profile/${formatSlug(record.name)}`)} 
+                  key={record.name} 
+                  className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer"
+                >
+                  <td className="p-4 w-1.5/5">{record.name}</td>
+                  <td className="p-4">{formatCommittee(record.committee)}</td>
+                  <td className="p-4">{formatHours(record.core)}</td>
+                  <td className="p-4">{formatHours(record.ancillary)}</td>
+                  {/* TODO CHANGE THIS PER MONTH: */}
+                  <td className="p-4">{formatHours(record.ancillary + record.core)}</td>
+              </tr> 
             ))
           )}
         </tbody> 
