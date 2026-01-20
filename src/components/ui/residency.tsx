@@ -114,6 +114,22 @@ export function ResidencyRecordsTable({ records }: { records: any[] }) {
     setCurrentPage(pageNumber);
   };
 
+  const formatCommittee = (value: string) => {
+    const options = {
+      customerCare: "Customer Care",
+      layout: "Layout",
+      literary: "Literary",
+      marketing: "Marketing",
+      office: "Office",
+      photo: "Photo",
+      web: "Web"
+    };
+
+    const out: string = options[value as keyof typeof options];
+
+    return out;
+  };
+
   console.log("RECORDS:", records);
 
   return (
@@ -133,7 +149,7 @@ export function ResidencyRecordsTable({ records }: { records: any[] }) {
             return (
               <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
                 <td className="p-4 w-1.5/5">{record.name}</td>
-                <td className="p-4">{record.committee}</td>
+                <td className="p-4">{formatCommittee(record.committee)}</td>
                 <td className="p-4">{record.core}</td>
                 <td className="p-4">{record.ancillary}</td>
                 <td className="p-4">{record.ancillary + record.core}</td>
