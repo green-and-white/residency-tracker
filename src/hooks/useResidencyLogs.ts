@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
 import { fetchResidencyLogs, fetchResidencyRecords, fetchActiveResidencyLogs } from "../services/residencyService";
-import type { ResidencyLog, RunningLog } from "../types";
+import type { ResidencyLog, RunningLog, StudentResidencyRecord } from "../types";
 
 export function useResidencyRecords() {
-  const [records, setRecords] = useState([]);
+  const [records, setRecords] = useState<StudentResidencyRecord[] | null>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function getResidenyRecords() {
       try {
-        // TODO: ADD TYPE
-        const data: any = await fetchResidencyRecords();
+        const data: StudentResidencyRecord[] = await fetchResidencyRecords();
         setRecords(data);
         setIsLoading(false);
       } catch(err) {

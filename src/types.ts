@@ -21,6 +21,22 @@ export type Student = {
   ; // committee_type
 }
 
+export interface StudentResidencyRecord {
+  name: string;
+  committee: string;
+  core: number;
+  ancillary: number;
+}
+
+export interface RawStudentResidencyRecord {
+  name: string | null;
+  committee: string | null;
+  residencylogs: {
+    residency_type: 'core' | 'ancillary';
+    hours: number | string;
+  }[];
+}
+
 export interface ActiveLog {
   id: number;
   student_uid: string;

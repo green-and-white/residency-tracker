@@ -1,5 +1,6 @@
 import supabase from "../utils/supabase";
 import type { ActiveLog, RunningLog } from "@/types";
+import type { StudentResidencyRecord, RawStudentResidencyRecord } from "@/types";
 
 export async function fetchResidencyLogs() {
   const { data, error } = await supabase
@@ -14,7 +15,7 @@ export async function fetchResidencyLogs() {
   return data || [];
 }
 
-export async function fetchResidencyRecords() {
+export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]> {
   const { data, error } = await supabase
   .from("students")
     .select(`
@@ -24,7 +25,7 @@ export async function fetchResidencyRecords() {
         residency_type,
         hours 
       )
-    `);  
+    `) as { data: RawStudentResidencyRecord[] | null, error: any };  
     // .from("residencylogs")
     // .select(`
     //   residency_type,
@@ -40,9 +41,8 @@ export async function fetchResidencyRecords() {
     throw new Error("Could not retrieve residency records from database.");
   }
 
-  const totals = {};
-  // TODO: create a type 
-  data.forEach((student) => {
+  const totals: Record<string, StudentResidencyRecord> = {};
+  data?.forEach((student) => {
     const name = student.name || "Unknown";
     const committee = student.committee || "N/A";
     

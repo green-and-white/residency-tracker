@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { Spinner } from "./spinner";
 import { Toaster, toast } from 'sonner';
+import type { StudentResidencyRecord } from "@/types";
 
 export function AdminPromptBox({ onTimeOut }) {
   const [password, setPassword] = useState("");
@@ -91,8 +92,10 @@ export function AdminPromptBox({ onTimeOut }) {
   );
 }
 
-// TODO: ADD TYPE
-export function ResidencyRecordsTable({ records, isLoading }: { records: any[], isLoading: boolean }) {
+export function ResidencyRecordsTable(
+  { records, isLoading } :
+  { records: StudentResidencyRecord[], isLoading: boolean })
+{
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 6;

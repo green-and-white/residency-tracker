@@ -1,15 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "@/components/ui/header";
 import Select, { type SingleValue } from 'react-select'
 import { type OptionType } from "@/types";
 import { ResidencyRecordsTable } from "@/components/ui/residency";
 import { useResidencyRecords } from "@/hooks/useResidencyLogs";
-// import { getTotalHoursPerStudent } from "@/services/residencyService";
-// import type { StudentHours } from "@/services/residencyService";
-// import { Spinner } from "@/components/ui/spinner";
-// // import useSession from "@/hooks/useSession";
-// import { ArrowLeft } from "lucide-react";
-// import { useNavigate } from "react-router-dom";
 
 export default function PublicView() {
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
