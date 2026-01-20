@@ -15,6 +15,30 @@ export async function fetchResidencyLogs() {
   return data || [];
 }
 
+export async function fetchStudentResidencyRecords(student_uid: string) {
+  const { data, error } = await supabase
+    .from("residencylogs")
+    .select(`
+      time_in,
+      time_out,
+      residency_type,
+      location,
+      hours,
+      students (
+        name,
+        committee 
+      )
+    `)
+    .eq("student_uid", student_uid);
+
+  if (error) {
+    console.error("Service Error: fetchStudentResidencyRecords", error);
+    throw new Error("Could not retrieve logs from database.");
+  }
+ 
+  return data || [];
+}
+
 export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]> {
   const { data, error } = await supabase
   .from("students")

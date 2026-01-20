@@ -1,10 +1,14 @@
 import { useParams } from "react-router-dom"
 import { Header } from "@/components/ui/header";
 import { StudentResidencyTable } from "@/components/ui/residency";
+import { useStudentResidencyRecord } from "@/hooks/useResidencyLogs";
 
 export default function Profile() {
   const { slug } = useParams();
-  
+  const records = useStudentResidencyRecord(slug)
+
+  console.log(records);
+
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <Header />
