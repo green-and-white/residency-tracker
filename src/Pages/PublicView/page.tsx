@@ -59,7 +59,7 @@ export default function PublicView() {
         </div>
       
         {/* Table */}
-        <ResidencyRecordsTable records={records.records} />
+        <ResidencyRecordsTable records={records.records} isLoading={records.isLoading}/>
 
       </div> 
     </div>

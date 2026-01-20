@@ -92,7 +92,7 @@ export function AdminPromptBox({ onTimeOut }) {
 }
 
 // TODO: ADD TYPE
-export function ResidencyRecordsTable({ records }: { records: any[] }) {
+export function ResidencyRecordsTable({ records, isLoading }: { records: any[], isLoading: boolean }) {
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 6;
@@ -145,8 +145,12 @@ export function ResidencyRecordsTable({ records }: { records: any[] }) {
           </tr>
         </thead>
         <tbody>
-          {currentRecords.map((record) => {
-            return (
+          {isLoading ? (
+            <tr>
+              <td colSpan={5} className="text-center p-4 border-2">Loading staffers...</td>
+            </tr>
+          ) : (
+            currentRecords.map((record) => (
               <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
                 <td className="p-4 w-1.5/5">{record.name}</td>
                 <td className="p-4">{formatCommittee(record.committee)}</td>
@@ -154,8 +158,8 @@ export function ResidencyRecordsTable({ records }: { records: any[] }) {
                 <td className="p-4">{record.ancillary}</td>
                 <td className="p-4">{record.ancillary + record.core}</td>
               </tr>
-            );
-          })}
+            ))
+          )}
         </tbody> 
       </table>
 
