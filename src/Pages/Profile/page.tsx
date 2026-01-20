@@ -20,7 +20,7 @@ export default function Profile() {
 
         <div>
           <h2>Residency Logs</h2>
-          <StudentResidencyTable />
+          <StudentResidencyTable records={records.records} isLoading={records.isLoading} />
         </div> 
       </div>
     </div>

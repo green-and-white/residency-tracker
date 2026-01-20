@@ -15,6 +15,7 @@ export function useStudentResidencyRecord(student_uid: string | undefined) {
   useEffect(() => {
     async function getResidenyRecords() {
       try {
+        // TODO: add type
         const data: any = await fetchStudentResidencyRecords(student_uid || "");
         setRecords(data);
         setIsLoading(false);
