@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Header } from "@/components/ui/header";
 import Select, { type SingleValue } from 'react-select'
 import { type OptionType } from "@/types";
@@ -7,7 +7,10 @@ import { useResidencyRecords } from "@/hooks/useResidencyLogs";
 
 export default function PublicView() {
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
-  const records = useResidencyRecords() 
+  const [searchName, setSearchName] = useState<string>("");
+  
+  const records = useResidencyRecords();
+  
   const options: OptionType[] = [
     { value: "customerCare", label: "Customer Care" },
     { value: "layout", label: "Layout" },
@@ -20,8 +23,28 @@ export default function PublicView() {
 
   const handleSelection = (option: SingleValue<OptionType>) => {
     setSelectedOption(option);
-    console.log(option)
-  }; 
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchName(e.target.value);
+  };
+
+  const filteredRecords = useMemo(() => {
+    if (!records.records) return [];
+    
+    return records.records.filter((record) => {
+      // Filter by name (case-insensitive)
+      const matchesName = searchName.trim() === '' || 
+        record.name.toLowerCase().includes(searchName.toLowerCase());
+      
+      // Filter by committee
+      const matchesCommittee = !selectedOption || 
+        record.committee.toLowerCase() === selectedOption.label.toLowerCase() ||
+        record.committee.toLowerCase() === selectedOption.value.toLowerCase();
+      
+      return matchesName && matchesCommittee;
+    });
+  }, [records.records, searchName, selectedOption]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
@@ -36,6 +59,8 @@ export default function PublicView() {
             <input 
               name="stafferName"
               type="text"
+              value={searchName}
+              onChange={handleSearchChange}
               className="h-full border border-[#ccc] bg-white rounded-sm px-2"
               placeholder="Juan de la Cruz"
             /> 
@@ -47,14 +72,14 @@ export default function PublicView() {
               onChange={handleSelection} 
               options={options} 
               placeholder="Select a committee"
+              isClearable
               className="text-sm" 
             />             
           </div>
         </div>
-      
+        
         {/* Table */}
-        <ResidencyRecordsTable records={records.records} isLoading={records.isLoading}/>
-
+        <ResidencyRecordsTable records={filteredRecords} isLoading={records.isLoading} />
       </div> 
     </div>
   );
