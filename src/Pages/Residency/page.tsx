@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import gwHorizontalBlack from '@/assets/gwlogo_horizontal_black.svg'
 import { addTimeOut, hasActiveLogToday } from "@/services/residencyService";
 import type { RunningLog } from "@/types";
 import { useTimeInCore } from '@/hooks/useTimeIn'
@@ -12,6 +11,8 @@ import { LogoutButton } from "@/components/ui/auth";
 import { AdminPromptBox } from "@/components/ui/residency";
 import { Link } from "react-router-dom";
 import Select, { type SingleValue } from 'react-select'
+import { Header } from "@/components/ui/header";
+import { type OptionType } from "@/types";
 
 const UID_LENGTH = 10
 
@@ -22,32 +23,8 @@ export default function Residency() {
   const [isStudentFound, setIsStudentFound] = useState(true);
   const { handleTimeIn } = useTimeInCore()
   const { handleTimeOut } = useTimeOut()
-  const [currentTime, setCurrentTime] = useState<{ time: string }>({ time: "" });
 
-  type OptionType = {
-    value: string;
-    label: string;
-  };
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
-
-  useEffect(() => {
-  const updateDateTime = () => {
-    const now = new Date();
-    setCurrentTime({
-      time: now.toLocaleTimeString("en-PH", {
-        timeZone: "Asia/Manila",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    });
-  };
-
-  updateDateTime(); // initialize immediately
-  const timer = setInterval(updateDateTime, 1000); // update every second
-
-  return () => clearInterval(timer);
-}, []);
-
 
   const inputRef = useRef<HTMLInputElement>(null)
   const submittedRef = useRef(false)
@@ -145,23 +122,7 @@ export default function Residency() {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <Toaster position="top-right" />
-      <div className="h-24 w-full px-8 border-b-2 border-gray-300 flex items-center justify-between bg-white">
-        <img
-          src={gwHorizontalBlack}
-          alt="gwHorizontalBlack"
-          className="h-11 w-auto"
-        />
-        <span className="text-2xl font-bold">
-          {currentTime.time}
-        </span>
-        <span className="text-lg text-gray-700">
-          {new Date().toLocaleDateString("en-PH", {
-            month: "long",
-            day: "numeric",
-            year: "numeric"
-          })}
-        </span>
-      </div>
+      <Header />
 
 <div className="h-24 w-full bg-white px-8 flex items-center justify-between font-bold text-3xl">
   <span className="ml-12">

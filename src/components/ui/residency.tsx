@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { Spinner } from "./spinner";
 import { Toaster, toast } from 'sonner';
+import type { StudentResidencyRecord } from "@/types";
 
 export function AdminPromptBox({ onTimeOut }) {
   const [password, setPassword] = useState("");
@@ -88,5 +89,129 @@ export function AdminPromptBox({ onTimeOut }) {
       </Dialog.Content>
     </Dialog.Root>
     </>
+  );
+}
+
+export function ResidencyRecordsTable(
+  { records, isLoading } :
+  { records: StudentResidencyRecord[], isLoading: boolean })
+{
+  const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 6;
+
+  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const currentRecords = records.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    setCurrentPage((page) => Math.min(page + 1, totalPages));
+  };
+
+  const goToPreviousPage = () => {
+    setCurrentPage((page) => Math.max(page - 1, 1));
+  };
+
+  const goToPage = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const formatHours = (hours: number) => 
+  `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`;
+
+  const formatCommittee = (value: string) => {
+    const options = {
+      customerCare: "Customer Care",
+      layout: "Layout",
+      literary: "Literary",
+      marketing: "Marketing",
+      office: "Office",
+      photo: "Photo",
+      web: "Web"
+    };
+
+    const out: string = options[value as keyof typeof options];
+
+    return out;
+  };
+
+  console.log("RECORDS:", records);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <table className="flex-1 text-sm w-4/5">
+        <thead>
+          <tr className="text-left text-gray-500 border-2">
+            {tableHeaders.map((header) => {
+              return (
+                <th className="p-4" key={header}>{header}</th>
+              );
+            })}  
+          </tr>
+        </thead>
+        <tbody>
+          {isLoading ? (
+            <tr>
+              <td colSpan={5} className="text-center p-4 border-2">Loading staffers...</td>
+            </tr>
+          ) : (
+            currentRecords.map((record) => (
+              <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
+                <td className="p-4 w-1.5/5">{record.name}</td>
+                <td className="p-4">{formatCommittee(record.committee)}</td>
+                <td className="p-4">{formatHours(record.core)}</td>
+                <td className="p-4">{formatHours(record.ancillary)}</td>
+                {/* TODO CHANGE THIS PER MONTH: */}
+                <td className="p-4">{formatHours(record.ancillary + record.core)}</td>
+              </tr>
+            ))
+          )}
+        </tbody> 
+      </table>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between w-4/5 px-4">
+          <div className="text-sm text-gray-600">
+            Showing {startIndex + 1} to {Math.min(endIndex, records.length)} of {records.length} records
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              className="cursor-pointer px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => goToPage(pageNum)}
+                  className={`cursor-pointer px-3 py-1 border rounded ${
+                    currentPage === pageNum
+                      ? 'bg-[#00a84f] text-white'
+                      : 'hover:bg-gray-100'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="cursor-pointer px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
