@@ -93,6 +93,27 @@ export function AdminPromptBox({ onTimeOut }) {
   );
 }
 
+export function StudentResidencyTable () {
+  const tableHeaders = ["Date", "Type", "Booth", "Time in - Time out", "Total Hours Rendered"]; 
+  
+  return (
+    <div className="flex flex-col gap-4">
+      <table className="flex-1 text-sm w-4/5">
+       <thead>
+          <tr className="text-left text-gray-500 border-2">
+            {tableHeaders.map((header) => {
+              return (
+                <th className="p-4" key={header}>{header}</th>
+              );
+            })}  
+          </tr>
+        </thead>
+      
+      </table>
+    </div>
+  );
+}
+
 export function ResidencyRecordsTable(
   { records, isLoading } :
   { records: StudentResidencyRecord[], isLoading: boolean })
