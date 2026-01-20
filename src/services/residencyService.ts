@@ -36,7 +36,15 @@ export async function fetchStudentResidencyRecords(student_uid: string) {
     throw new Error("Could not retrieve logs from database.");
   }
  
-  return data || [];
+  return (data || []).map((rec) => ({
+    time_in: rec.time_in,
+    time_out: rec.time_out,
+    residency_type: rec.residency_type,
+    location: rec.location,
+    hours: rec.hours,
+    name: rec.students?.name || "Unknown",
+    committee: rec.students?.committee || "N/A",
+  }));
 }
 
 export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]> {
