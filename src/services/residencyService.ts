@@ -15,10 +15,43 @@ export async function fetchResidencyLogs() {
   return data || [];
 }
 
+export async function fetchStudentResidencyRecords(student_uid: string) {
+  const { data, error } = await supabase
+    .from("residencylogs")
+    .select(`
+      time_in,
+      time_out,
+      residency_type,
+      location,
+      hours,
+      students (
+        name,
+        committee 
+      )
+    `)
+    .eq("student_uid", student_uid);
+
+  if (error) {
+    console.error("Service Error: fetchStudentResidencyRecords", error);
+    throw new Error("Could not retrieve logs from database.");
+  }
+ 
+  return (data || []).map((rec) => ({
+    time_in: rec.time_in,
+    time_out: rec.time_out,
+    residency_type: rec.residency_type,
+    location: rec.location,
+    hours: rec.hours,
+    name: rec.students?.name || "Unknown",
+    committee: rec.students?.committee || "N/A",
+  }));
+}
+
 export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]> {
   const { data, error } = await supabase
   .from("students")
     .select(`
+      student_uid, 
       name,
       committee,
       residencylogs (
@@ -44,10 +77,11 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
   const totals: Record<string, StudentResidencyRecord> = {};
   data?.forEach((student) => {
     const name = student.name || "Unknown";
+    const student_uid = student.student_uid || "N/A";
     const committee = student.committee || "N/A";
     
     if (!totals[name]) {
-      totals[name] = { name, committee, core: 0, ancillary: 0 };
+      totals[name] = { student_uid, name, committee, core: 0, ancillary: 0 };
     }
     
     student.residencylogs?.forEach((log) => {

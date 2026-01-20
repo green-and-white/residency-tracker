@@ -22,6 +22,7 @@ export type Student = {
 }
 
 export interface StudentResidencyRecord {
+  student_uid: string; 
   name: string;
   committee: string;
   core: number;
@@ -29,6 +30,7 @@ export interface StudentResidencyRecord {
 }
 
 export interface RawStudentResidencyRecord {
+  student_uid: string; 
   name: string | null;
   committee: string | null;
   residencylogs: {

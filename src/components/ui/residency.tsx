@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { Spinner } from "./spinner";
 import { Toaster, toast } from 'sonner';
 import type { StudentResidencyRecord } from "@/types";
+import { useNavigate } from "react-router-dom";
 
 export function AdminPromptBox({ onTimeOut }) {
   const [password, setPassword] = useState("");
@@ -92,10 +93,142 @@ export function AdminPromptBox({ onTimeOut }) {
   );
 }
 
+export function StudentResidencyTable(
+  { records, isLoading } :
+  { records: any[], isLoading: boolean }
+) {
+  const tableHeaders = ["Date", "Type", "Booth", "Time in - Time out", "Total Hours Rendered"];
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 6;
+  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const currentRecords = records.slice(startIndex, endIndex);
+  
+  const goToNextPage = () => {
+    setCurrentPage((page) => Math.min(page + 1, totalPages));
+  };
+  
+  const goToPreviousPage = () => {
+    setCurrentPage((page) => Math.max(page - 1, 1));
+  };
+  
+  const goToPage = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+  
+  const formatHours = (hours: number) => 
+    `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`;
+  
+  const formatDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+  
+  const formatTime = (timeIn: string, timeOut: string) => {
+    const timeInDate = new Date(timeIn);
+    const timeOutDate = new Date(timeOut);
+    const timeInFormatted = timeInDate.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    const timeOutFormatted = timeOutDate.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    return `${timeInFormatted} - ${timeOutFormatted}`;
+  };
+  
+  return (
+    <div className="flex flex-col gap-4">
+      <table className="flex-1 text-sm w-4/5">
+        <thead>
+          <tr className="text-left text-gray-500 border-2">
+            {tableHeaders.map((header) => {
+              return (
+                <th className="p-4" key={header}>{header}</th>
+              );
+            })}  
+          </tr>
+        </thead>
+        <tbody>
+          {isLoading ? (
+            <tr>
+              <td colSpan={5} className="text-center p-4 border-2">Loading records...</td>
+            </tr>
+          ) : (
+            currentRecords.map((record, index) => (
+              <tr 
+                key={index}
+                className="text-left border-2 hover:bg-gray-200"
+              >
+                <td className="p-4">{formatDate(record.time_in)}</td>
+                <td className="p-4">{
+                  record.residency_type.charAt(0).toUpperCase() + 
+                  record.residency_type.slice(1)}
+                </td>
+                <td className="p-4">{record.location}</td>
+                <td className="p-4">{formatTime(record.time_in, record.time_out)}</td>
+                <td className="p-4">{formatHours(record.hours)}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between w-4/5 px-4">
+          <div className="text-sm text-gray-600">
+            Showing {startIndex + 1} to {Math.min(endIndex, records.length)} of {records.length} records
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              className="cursor-pointer px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => goToPage(pageNum)}
+                  className={`cursor-pointer px-3 py-1 border rounded ${
+                    currentPage === pageNum
+                      ? 'bg-[#00a84f] text-white'
+                      : 'hover:bg-gray-100'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="cursor-pointer px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ResidencyRecordsTable(
   { records, isLoading } :
   { records: StudentResidencyRecord[], isLoading: boolean })
 {
+  const navigate = useNavigate(); 
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 6;
@@ -136,8 +269,6 @@ export function ResidencyRecordsTable(
     return out;
   };
 
-  console.log("RECORDS:", records);
-
   return (
     <div className="flex flex-col gap-4">
       <table className="flex-1 text-sm w-4/5">
@@ -157,14 +288,18 @@ export function ResidencyRecordsTable(
             </tr>
           ) : (
             currentRecords.map((record) => (
-              <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
-                <td className="p-4 w-1.5/5">{record.name}</td>
-                <td className="p-4">{formatCommittee(record.committee)}</td>
-                <td className="p-4">{formatHours(record.core)}</td>
-                <td className="p-4">{formatHours(record.ancillary)}</td>
-                {/* TODO CHANGE THIS PER MONTH: */}
-                <td className="p-4">{formatHours(record.ancillary + record.core)}</td>
-              </tr>
+                <tr 
+                  onClick={()=>navigate(`/profile/${record.student_uid}`)} 
+                  key={record.name} 
+                  className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer"
+                >
+                  <td className="p-4 w-1.5/5">{record.name}</td>
+                  <td className="p-4">{formatCommittee(record.committee)}</td>
+                  <td className="p-4">{formatHours(record.core)}</td>
+                  <td className="p-4">{formatHours(record.ancillary)}</td>
+                  {/* TODO CHANGE THIS PER MONTH: */}
+                  <td className="p-4">{formatHours(record.ancillary + record.core)}</td>
+              </tr> 
             ))
           )}
         </tbody> 

@@ -1,9 +1,11 @@
 import gwHorizontalBlack from '@/assets/gwlogo_horizontal_black.svg'
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const [currentTime, setCurrentTime] = useState<{ time: string }>({ time: "" });
-  
+  const navigate = useNavigate();
+
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -27,7 +29,8 @@ export function Header() {
       <img
         src={gwHorizontalBlack}
         alt="gwHorizontalBlack"
-        className="h-11 w-auto"
+        className="cursor-pointer h-11 w-auto"
+        onClick={()=>navigate(-1)} // returns to previous page 
       />
       <span className="text-2xl font-bold">
         {currentTime.time}
