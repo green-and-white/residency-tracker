@@ -122,9 +122,6 @@ export function ResidencyRecordsTable(
   const formatHours = (hours: number) => 
   `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`;
 
-  const formatSlug = (name: string) =>
-    name.toLowerCase().replace(/ /g, '-');
-
   const formatCommittee = (value: string) => {
     const options = {
       customerCare: "Customer Care",
@@ -163,7 +160,7 @@ export function ResidencyRecordsTable(
           ) : (
             currentRecords.map((record) => (
                 <tr 
-                  onClick={()=>navigate(`/profile/${formatSlug(record.name)}`)} 
+                  onClick={()=>navigate(`/profile/${record.student_uid}`)} 
                   key={record.name} 
                   className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer"
                 >

@@ -19,6 +19,7 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
   const { data, error } = await supabase
   .from("students")
     .select(`
+      student_uid, 
       name,
       committee,
       residencylogs (
@@ -44,10 +45,11 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
   const totals: Record<string, StudentResidencyRecord> = {};
   data?.forEach((student) => {
     const name = student.name || "Unknown";
+    const student_uid = student.student_uid || "N/A";
     const committee = student.committee || "N/A";
     
     if (!totals[name]) {
-      totals[name] = { name, committee, core: 0, ancillary: 0 };
+      totals[name] = { student_uid, name, committee, core: 0, ancillary: 0 };
     }
     
     student.residencylogs?.forEach((log) => {
