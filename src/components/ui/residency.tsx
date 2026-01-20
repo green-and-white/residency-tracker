@@ -117,6 +117,9 @@ export function ResidencyRecordsTable(
     setCurrentPage(pageNumber);
   };
 
+  const formatHours = (hours: number) => 
+  `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`;
+
   const formatCommittee = (value: string) => {
     const options = {
       customerCare: "Customer Care",
@@ -157,9 +160,10 @@ export function ResidencyRecordsTable(
               <tr key={record.name} className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer">
                 <td className="p-4 w-1.5/5">{record.name}</td>
                 <td className="p-4">{formatCommittee(record.committee)}</td>
-                <td className="p-4">{record.core}</td>
-                <td className="p-4">{record.ancillary}</td>
-                <td className="p-4">{record.ancillary + record.core}</td>
+                <td className="p-4">{formatHours(record.core)}</td>
+                <td className="p-4">{formatHours(record.ancillary)}</td>
+                {/* TODO CHANGE THIS PER MONTH: */}
+                <td className="p-4">{formatHours(record.ancillary + record.core)}</td>
               </tr>
             ))
           )}
