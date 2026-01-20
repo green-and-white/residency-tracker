@@ -15,7 +15,9 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Main/>}/>
-            <Route path='/residency' element={<ProtectedRoute><Residency/></ProtectedRoute>}/>
+            {/* <Route path='/residency' element={<ProtectedRoute><Residency/></ProtectedRoute>}/> */}
+            
+            <Route path='/residency' element={<Residency/>}/>
             {/* TODO: NEST IN PROTECTED ROUTE */}
             <Route path='/profile/:slug' element={<Profile/>}/>
             <Route path='/publicview' element={<PublicView/>}/>

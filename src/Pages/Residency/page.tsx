@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import Select, { type SingleValue } from 'react-select'
 import { Header } from "@/components/ui/header";
 import { type OptionType } from "@/types";
+import { CampusIdResidency } from "@/components/ui/residency";
 
 const UID_LENGTH = 10
 
@@ -186,12 +187,12 @@ export default function Residency() {
                   <Spinner className="h-4 w-auto text-gray-600" />
                 </div>
               )}
-
-              <a href="https://forms.gle/NJ1ACmyBTcYXjy5L8" target="_blank" rel="noopener noreferrer"
+              <CampusIdResidency selectedOption={selectedOption} fetchLogs={fetchLogs}/>
+              {/* <a href="https://forms.gle/NJ1ACmyBTcYXjy5L8" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full"
               >
                 Don't have your student ID? Click here
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
