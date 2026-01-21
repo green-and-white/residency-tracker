@@ -1,6 +1,56 @@
 import { useState, useEffect } from "react";
-import { fetchResidencyLogs, fetchActiveResidencyLogs } from "../services/residencyService";
-import type { ResidencyLog, RunningLog } from "../types";
+import {
+  fetchResidencyLogs,
+  fetchResidencyRecords,
+  fetchActiveResidencyLogs,
+  fetchStudentResidencyRecords
+} from "../services/residencyService";
+import type { ResidencyLog, RunningLog, StudentResidencyRecord } from "../types";
+
+export function useStudentResidencyRecord(student_uid: string | undefined) {
+  const [records, setRecords] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function getResidenyRecords() {
+      try {
+        // TODO: add type
+        const data: any = await fetchStudentResidencyRecords(student_uid || "");
+        setRecords(data);
+        setIsLoading(false);
+      } catch(err) {
+        setError(String(err));
+        setIsLoading(false);
+      }
+    }
+    getResidenyRecords();
+  }, [student_uid]);
+
+  return { records, isLoading, error };
+}
+
+export function useResidencyRecords() {
+  const [records, setRecords] = useState<StudentResidencyRecord[] | null>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function getResidenyRecords() {
+      try {
+        const data: StudentResidencyRecord[] = await fetchResidencyRecords();
+        setRecords(data);
+        setIsLoading(false);
+      } catch(err) {
+        setError(String(err));
+        setIsLoading(false);
+      }
+    }
+    getResidenyRecords();
+  }, []);
+
+  return { records, isLoading, error };
+}
 
 export function useResidencyLogs() {
   const [logs, setLogs] = useState<ResidencyLog[]>([]);

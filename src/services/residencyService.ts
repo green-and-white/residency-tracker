@@ -1,5 +1,6 @@
 import supabase from "../utils/supabase";
 import type { ActiveLog, RunningLog } from "@/types";
+import type { StudentResidencyRecord, RawStudentResidencyRecord } from "@/types";
 
 export async function fetchResidencyLogs() {
   const { data, error } = await supabase
@@ -13,7 +14,88 @@ export async function fetchResidencyLogs() {
  
   return data || [];
 }
-// TODO: add subscribe service to listen to real time changes (if needed)
+
+export async function fetchStudentResidencyRecords(student_uid: string) {
+  const { data, error } = await supabase
+    .from("residencylogs")
+    .select(`
+      time_in,
+      time_out,
+      residency_type,
+      location,
+      hours,
+      students (
+        name,
+        committee 
+      )
+    `)
+    .eq("student_uid", student_uid);
+
+  if (error) {
+    console.error("Service Error: fetchStudentResidencyRecords", error);
+    throw new Error("Could not retrieve logs from database.");
+  }
+ 
+  return (data || []).map((rec) => ({
+    time_in: rec.time_in,
+    time_out: rec.time_out,
+    residency_type: rec.residency_type,
+    location: rec.location,
+    hours: rec.hours,
+    name: rec.students?.name || "Unknown",
+    committee: rec.students?.committee || "N/A",
+  }));
+}
+
+export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]> {
+  const { data, error } = await supabase
+  .from("students")
+    .select(`
+      student_uid, 
+      name,
+      committee,
+      residencylogs (
+        residency_type,
+        hours 
+      )
+    `) as { data: RawStudentResidencyRecord[] | null, error: any };  
+    // .from("residencylogs")
+    // .select(`
+    //   residency_type,
+    //   hours,
+    //   students (
+    //     name,
+    //     committee 
+    //   )
+    // `);
+
+  if (error) {
+    console.error("Service Error: fetchResidencyRecords", error);
+    throw new Error("Could not retrieve residency records from database.");
+  }
+
+  const totals: Record<string, StudentResidencyRecord> = {};
+  data?.forEach((student) => {
+    const name = student.name || "Unknown";
+    const student_uid = student.student_uid || "N/A";
+    const committee = student.committee || "N/A";
+    
+    if (!totals[name]) {
+      totals[name] = { student_uid, name, committee, core: 0, ancillary: 0 };
+    }
+    
+    student.residencylogs?.forEach((log) => {
+      const type = log.residency_type;
+      const hours = Number(log.hours) || 0;
+      
+      // Add the hours to the correct category
+      totals[name][type] += hours;
+    });
+  });
+
+
+  return Object.values(totals) || [];
+}
 
 export async function addTimeIn(studentId: string, timeIn: Date, residencyType: string, location: string) {
   const { error } = await supabase

@@ -21,6 +21,24 @@ export type Student = {
   ; // committee_type
 }
 
+export interface StudentResidencyRecord {
+  student_uid: string; 
+  name: string;
+  committee: string;
+  core: number;
+  ancillary: number;
+}
+
+export interface RawStudentResidencyRecord {
+  student_uid: string; 
+  name: string | null;
+  committee: string | null;
+  residencylogs: {
+    residency_type: 'core' | 'ancillary';
+    hours: number | string;
+  }[];
+}
+
 export interface ActiveLog {
   id: number;
   student_uid: string;
@@ -35,4 +53,9 @@ export interface RunningLog{
   committee: string;
   residency_type: string;
   student_uid: string;
+}
+
+export type OptionType = {
+  value: string;
+  label: string;
 }
