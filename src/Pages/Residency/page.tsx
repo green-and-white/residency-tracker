@@ -23,6 +23,8 @@ export default function Residency() {
   const { handleTimeIn } = useTimeInCore()
   const { handleTimeOut } = useTimeOut()
   const [currentTime, setCurrentTime] = useState<{ time: string }>({ time: "" });
+  const [isFocused, setIsFocused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   type OptionType = {
     value: string;
@@ -48,6 +50,23 @@ export default function Residency() {
   return () => clearInterval(timer);
 }, []);
 
+  useEffect(() => {
+    //handle when user clicks outside of the input div
+    const handleClickOutside = (event: MouseEvent) => {
+
+      //check if the container is present and if the clicked target is outside the container
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsFocused(false); //remove focus
+        setStudentId("") //clear input
+        console.log(studentId)
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null)
   const submittedRef = useRef(false)
@@ -72,6 +91,9 @@ export default function Residency() {
   const handleSubmit = async (uid: string) => {
     if (!selectedOption) {
       alert("Please select a location before scanning your ID.");
+      setIsLoading(false)
+      setStudentId("")
+      submittedRef.current = false
       return;
     }
 
@@ -116,6 +138,7 @@ export default function Residency() {
       setStudentId("")
       submittedRef.current = false
       inputRef.current?.focus()
+      setIsFocused(true);
     }
   };
 
@@ -200,10 +223,13 @@ export default function Residency() {
               {!isStudentFound && <p className="mt-1 text-xs italic text-red-600">*Student not found.</p>}
 
               <div
-                onClick={() => inputRef.current?.focus()}
-                className="cursor-pointer select-none px-12 py-28 w-sm rounded-sm bg-white text-black text-center
-                           border-2 border-gray-300 hover:border-green-500 active:border-green-600 active:border-3"
-              >
+                ref={containerRef}
+                onClick={() => {
+                  inputRef.current?.focus();
+                  setIsFocused(true);
+                }}
+                className={`cursor-pointer select-none px-12 py-28 w-sm rounded-sm bg-white text-black text-center
+                           border-2  hover:border-blue-500 ${isFocused ? "border-blue-500" : "border-gray-300"}`}>
                 Click here before scanning your ID <br />
                 <span className="text-gray-500">Scan your ID on the RFID sensor</span>
               </div>
@@ -214,8 +240,8 @@ export default function Residency() {
                 value={studentId}
                 onChange={handleScanChange}
                 onCopy={(e) => e.preventDefault()}
-                className="absolute opacity-0 w-sm"
-                autoComplete="off"
+                autoComplete = "new-password"
+                className={`absolute opacity-0 w-sm ${isFocused ? "border-blue-500" : "border-black-300"}`}
               />
             </div>
 
@@ -227,7 +253,7 @@ export default function Residency() {
               )}
 
               <a href="https://forms.gle/NJ1ACmyBTcYXjy5L8" target="_blank" rel="noopener noreferrer"
-                className="text-xs text-gray-600 hover:text-green-600 underline text-center w-full"
+                className="text-xs text-gray-600 hover:text-blue-600 underline text-center w-full"
               >
                 Don't have your student ID? Click here
               </a>
