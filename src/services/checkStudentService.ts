@@ -10,6 +10,16 @@ export async function checkStudentExists(uid: string): Promise<boolean> {
   return !!data; // true if exists, false if not
 }
 
+export async function checkStudentExistsWithId(id: string): Promise<any | null> {
+  const { data } = await supabase
+    .from("students")
+    .select("student_uid")
+    .eq("student_id", id)
+    .single();
+
+  return data?.student_uid; 
+}
+
 export async function fetchStudentAuthByEmail(email?: string) {
   const { data, error } = await supabase
     .from('students')
