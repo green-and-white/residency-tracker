@@ -331,6 +331,12 @@ export function StudentResidencyTable(
             <tr>
               <td colSpan={5} className="text-center p-4 border-2">Loading records...</td>
             </tr>
+          ) : currentRecords.length === 0 ? (
+            <tr>
+              <td colSpan={5} className="text-center p-4 border-2 text-gray-500">
+                No residency recorded yet.
+              </td>
+            </tr>
           ) : (
             currentRecords.map((record, index) => (
               <tr 
@@ -338,8 +344,8 @@ export function StudentResidencyTable(
                 className="text-left border-2 hover:bg-gray-200"
               >
                 <td className="p-4">{formatDate(record.time_in)}</td>
-                <td className="p-4">{
-                  record.residency_type.charAt(0).toUpperCase() + 
+                <td className="p-4">
+                  {record.residency_type.charAt(0).toUpperCase() + 
                   record.residency_type.slice(1)}
                 </td>
                 <td className="p-4">{record.location}</td>
