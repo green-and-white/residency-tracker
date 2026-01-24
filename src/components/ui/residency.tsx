@@ -1,5 +1,4 @@
-import { useState } from "react";
-// import supabase from "@/utils/supabase";
+import { useState, useMemo } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { Spinner } from "./spinner";
@@ -402,12 +401,75 @@ export function ResidencyRecordsTable(
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const forSorting = ["Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
+  // TODO: Turn into a type 
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'asc' | 'desc';
+  } | null>(null);
   const recordsPerPage = 6;
 
-  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const sortedRecords = useMemo(() => {
+    if (!sortConfig) return records;
+
+    const sorted = [...records].sort((a, b) => {
+      let aValue: number;
+      let bValue: number;
+
+      switch (sortConfig.key) {
+        case 'Core Hours':
+          aValue = a.core;
+          bValue = b.core;
+          break;
+        case 'Ancilliary Hours':
+          aValue = a.ancillary;
+          bValue = b.ancillary;
+          break;
+        case 'Hours Rendered':
+          aValue = a.core + a.ancillary;
+          bValue = b.core + b.ancillary;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [records, sortConfig]);
+
+  const totalPages = Math.ceil(sortedRecords.length / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
   const endIndex = startIndex + recordsPerPage;
-  const currentRecords = records.slice(startIndex, endIndex);
+  const currentRecords = sortedRecords.slice(startIndex, endIndex);
+
+  const handleSort = (header: string) => {
+    if (!forSorting.includes(header)) return;
+
+    setSortConfig((current) => {
+      // If clicking the same column toggle ascending/decscending 
+      if (current?.key === header) {
+        return {
+          key: header,
+          direction: current.direction === 'asc' ? 'desc' : 'asc'
+        };
+      }
+      // If clicking a new column, start with ascending
+      return {
+        key: header,
+        direction: 'asc'
+      };
+    });
+
+    // Reset to first page when sorting
+    setCurrentPage(1);
+  };
 
   const goToNextPage = () => {
     setCurrentPage((page) => Math.min(page + 1, totalPages));
@@ -446,14 +508,17 @@ export function ResidencyRecordsTable(
         <thead>
           <tr className="text-left text-gray-500 border-2">
             {tableHeaders.map((header) => {
+              const isActive = sortConfig?.key === header;
               return (
                 <th className="p-4" key={header}>
                   <div className="flex items-center">
                     {header}
                     { forSorting.includes(header) && 
                       <ArrowDownUp 
-                        className="ml-3 cursor-pointer hover:text-gray-900"
-                        onClick={()=>alert("SORT!")}
+                        className={`ml-3 cursor-pointer hover:text-gray-900 ${
+                          isActive ? 'text-[#00a84f]' : ''
+                        }`}
+                        onClick={() => handleSort(header)}
                       />
                     } 
                   </div> 
@@ -490,7 +555,7 @@ export function ResidencyRecordsTable(
       {totalPages > 1 && (
         <div className="flex items-center justify-between w-4/5 px-4">
           <div className="text-sm text-gray-600">
-            Showing {startIndex + 1} to {Math.min(endIndex, records.length)} of {records.length} records
+            Showing {startIndex + 1} to {Math.min(endIndex, sortedRecords.length)} of {sortedRecords.length} records
           </div>
           
           <div className="flex items-center gap-2">
