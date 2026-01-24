@@ -22,6 +22,7 @@ export type Student = {
 }
 
 export interface StudentResidencyRecord {
+  id: string | undefined; 
   student_uid: string; 
   name: string;
   committee: string;
@@ -30,6 +31,7 @@ export interface StudentResidencyRecord {
 }
 
 export interface RawStudentResidencyRecord {
+  id: string | undefined; 
   student_uid: string; 
   name: string | null;
   committee: string | null;

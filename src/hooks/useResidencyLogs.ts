@@ -8,16 +8,16 @@ import {
 } from "../services/residencyService";
 import type { ResidencyLog, RunningLog, StudentResidencyRecord } from "../types";
 
-export function useStudentResidencyRecord(student_uid: string | undefined) {
+export function useStudentResidencyRecord(id: string | undefined) {
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function getResidenyRecords() {
+    async function getResidencyRecords() {
       try {
         // TODO: add type
-        const data: any = await fetchStudentResidencyRecords(student_uid || "");
+        const data: any = await fetchStudentResidencyRecords(id);
         setRecords(data);
         setIsLoading(false);
       } catch(err) {
@@ -25,8 +25,8 @@ export function useStudentResidencyRecord(student_uid: string | undefined) {
         setIsLoading(false);
       }
     }
-    getResidenyRecords();
-  }, [student_uid]);
+    getResidencyRecords();
+  }, [id]);
 
   return { records, isLoading, error };
 }

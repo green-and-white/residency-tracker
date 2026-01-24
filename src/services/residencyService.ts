@@ -15,7 +15,20 @@ export async function fetchResidencyLogs() {
   return data || [];
 }
 
-export async function fetchStudentResidencyRecords(student_uid: string) {
+export async function fetchStudentResidencyRecords(id: string | undefined) {
+  const { data: student, error: studentError } = await supabase
+    .from("students")
+    .select("student_uid")
+    .eq("id", id)
+    .single();
+
+  if (studentError || !student) {
+    console.error("Service Error: fetchStudentResidencyRecords; Student not found", studentError);
+    throw new Error("Could not find student in database.");
+  }
+
+  const student_uid = student.student_uid;
+  
   const { data, error } = await supabase
     .from("residencylogs")
     .select(`
@@ -35,7 +48,7 @@ export async function fetchStudentResidencyRecords(student_uid: string) {
     console.error("Service Error: fetchStudentResidencyRecords", error);
     throw new Error("Could not retrieve logs from database.");
   }
- 
+
   return (data || []).map((rec) => ({
     time_in: rec.time_in,
     time_out: rec.time_out,
@@ -51,6 +64,7 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
   const { data, error } = await supabase
   .from("students")
     .select(`
+      id, 
       student_uid, 
       name,
       committee,
@@ -76,12 +90,13 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
 
   const totals: Record<string, StudentResidencyRecord> = {};
   data?.forEach((student) => {
+    const id = student.id 
     const name = student.name || "Unknown";
     const student_uid = student.student_uid || "N/A";
     const committee = student.committee || "N/A";
     
     if (!totals[name]) {
-      totals[name] = { student_uid, name, committee, core: 0, ancillary: 0 };
+      totals[name] = { id, student_uid, name, committee, core: 0, ancillary: 0 };
     }
     
     student.residencylogs?.forEach((log) => {
@@ -105,6 +120,7 @@ export async function fetchResidencyRecordsByMonth(): Promise<StudentResidencyRe
   const { data, error } = await supabase
     .from("students")
     .select(`
+      id, 
       student_uid, 
       name,
       committee,
@@ -126,12 +142,13 @@ export async function fetchResidencyRecordsByMonth(): Promise<StudentResidencyRe
   const totals: Record<string, StudentResidencyRecord> = {};
   
   data?.forEach((student) => {
+    const id = student.id; 
     const name = student.name || "Unknown";
     const student_uid = student.student_uid || "N/A";
     const committee = student.committee || "N/A";
 
     if (!totals[name]) {
-      totals[name] = { student_uid, name, committee, core: 0, ancillary: 0 };
+      totals[name] = { id, student_uid, name, committee, core: 0, ancillary: 0 };
     }
 
     student.residencylogs?.forEach((log) => {

@@ -538,7 +538,7 @@ export function ResidencyRecordsTable(
           ) : (
             currentRecords.map((record) => (
                 <tr 
-                  onClick={()=>navigate(`/profile/${record.student_uid}`)} 
+                  onClick={()=>navigate(`/profile/${record.id}`)} 
                   key={record.name} 
                   className="text-left border-2 hover:bg-gray-200 hover:cursor-pointer"
                 >
