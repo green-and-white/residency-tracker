@@ -269,10 +269,11 @@ export function StudentResidencyTable(
   const tableHeaders = ["Date", "Type", "Booth", "Time in - Time out", "Total Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 6;
-  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const validRecords = records.filter(record => record.time_in !== null);
+  const totalPages = Math.ceil(validRecords.length / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
   const endIndex = startIndex + recordsPerPage;
-  const currentRecords = records.slice(startIndex, endIndex);
+  const currentRecords = validRecords.slice(startIndex, endIndex);
   
   const goToNextPage = () => {
     setCurrentPage((page) => Math.min(page + 1, totalPages));
@@ -360,7 +361,7 @@ export function StudentResidencyTable(
       {totalPages > 1 && (
         <div className="flex items-center justify-between w-4/5 px-4">
           <div className="text-sm text-gray-600">
-            Showing {startIndex + 1} to {Math.min(endIndex, records.length)} of {records.length} records
+            Showing {startIndex + 1} to {Math.min(endIndex, validRecords.length)} of {validRecords.length} records
           </div>
           <div className="flex items-center gap-2">
             <button

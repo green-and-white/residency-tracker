@@ -18,7 +18,7 @@ export async function fetchResidencyLogs() {
 export async function fetchStudentResidencyRecords(id: string | undefined) {
   const { data: student, error: studentError } = await supabase
     .from("students")
-    .select("student_uid")
+    .select("student_uid, name, committee")
     .eq("id", id)
     .single();
 
@@ -28,7 +28,7 @@ export async function fetchStudentResidencyRecords(id: string | undefined) {
   }
 
   const student_uid = student.student_uid;
-  
+
   const { data, error } = await supabase
     .from("residencylogs")
     .select(`
@@ -36,11 +36,7 @@ export async function fetchStudentResidencyRecords(id: string | undefined) {
       time_out,
       residency_type,
       location,
-      hours,
-      students (
-        name,
-        committee 
-      )
+      hours
     `)
     .eq("student_uid", student_uid);
 
@@ -49,14 +45,27 @@ export async function fetchStudentResidencyRecords(id: string | undefined) {
     throw new Error("Could not retrieve logs from database.");
   }
 
-  return (data || []).map((rec) => ({
+  // If no logs, return array with just student info
+  if (!data || data.length === 0) {
+    return [{
+      time_in: null,
+      time_out: null,
+      residency_type: null,
+      location: null,
+      hours: null,
+      name: student.name,
+      committee: student.committee,
+    }];
+  }
+
+  return data.map((rec) => ({
     time_in: rec.time_in,
     time_out: rec.time_out,
     residency_type: rec.residency_type,
     location: rec.location,
     hours: rec.hours,
-    name: rec.students?.name || "Unknown",
-    committee: rec.students?.committee || "N/A",
+    name: student.name,
+    committee: student.committee,
   }));
 }
 
