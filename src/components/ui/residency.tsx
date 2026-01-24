@@ -10,7 +10,7 @@ import { checkStudentExistsWithId } from "@/services/checkStudentService";
 import { hasActiveLogToday } from "@/services/residencyService";
 import { useTimeInCore } from "@/hooks/useTimeIn";
 import { useTimeOut } from "@/hooks/useTimeOut";
-
+import { ArrowDownUp } from "lucide-react";
 
 export function CampusIdResidency(
   { selectedOption, fetchLogs } : 
@@ -400,6 +400,7 @@ export function ResidencyRecordsTable(
 {
   const navigate = useNavigate(); 
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
+  const forSorting = ["Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 6;
 
@@ -446,9 +447,19 @@ export function ResidencyRecordsTable(
           <tr className="text-left text-gray-500 border-2">
             {tableHeaders.map((header) => {
               return (
-                <th className="p-4" key={header}>{header}</th>
+                <th className="p-4" key={header}>
+                  <div className="flex items-center">
+                    {header}
+                    { forSorting.includes(header) && 
+                      <ArrowDownUp 
+                        className="ml-3 cursor-pointer hover:text-gray-900"
+                        onClick={()=>alert("SORT!")}
+                      />
+                    } 
+                  </div> 
+                </th>
               );
-            })}  
+            })}
           </tr>
         </thead>
         <tbody>

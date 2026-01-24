@@ -16,7 +16,8 @@ function App() {
           <Routes>
             <Route path='/' element={<Main/>}/>
             <Route path='/residency' element={<ProtectedRoute><Residency/></ProtectedRoute>}/>
-            <Route path='/profile/:slug' element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+            {/* <Route path='/profile/:slug' element={<ProtectedRoute><Profile/></ProtectedRoute>}/> */}
+            <Route path='/profile/:slug' element={<Profile/>}/>
             <Route path='/publicview' element={<PublicView/>}/>
           </Routes>
         </BrowserRouter>
