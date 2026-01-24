@@ -36,6 +36,8 @@ export interface RawStudentResidencyRecord {
   residencylogs: {
     residency_type: 'core' | 'ancillary';
     hours: number | string;
+    time_in?: string | null;
+    time_out?: string | null;
   }[];
 }
 

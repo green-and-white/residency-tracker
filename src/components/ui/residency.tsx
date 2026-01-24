@@ -401,6 +401,8 @@ export function ResidencyRecordsTable(
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const forSorting = ["Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
+  const currentMonth = new Date().toLocaleDateString('en-US', { month: 'short' }); 
+
   // TODO: Turn into a type 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -513,6 +515,7 @@ export function ResidencyRecordsTable(
                 <th className="p-4" key={header}>
                   <div className="flex items-center">
                     {header}
+                    { header === "Hours Rendered" && ` (${currentMonth})`}
                     { forSorting.includes(header) && 
                       <ArrowDownUp 
                         className={`ml-3 cursor-pointer hover:text-gray-900 ${

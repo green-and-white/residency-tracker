@@ -97,6 +97,55 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
   return Object.values(totals) || [];
 }
 
+export async function fetchResidencyRecordsByMonth(): Promise<StudentResidencyRecord[]> {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+  const { data, error } = await supabase
+    .from("students")
+    .select(`
+      student_uid, 
+      name,
+      committee,
+      residencylogs (
+        residency_type,
+        time_in,
+        time_out,
+        hours 
+      )
+    `)
+    .gte('residencylogs.time_in', startOfMonth.toISOString())
+    .lte('residencylogs.time_in', endOfMonth.toISOString()) as { data: RawStudentResidencyRecord[] | null, error: any };
+  
+  if (error) {
+    console.error("Service Error: fetchResidencyRecords", error);
+    throw new Error("Could not retrieve residency records from database.");
+  }
+
+  const totals: Record<string, StudentResidencyRecord> = {};
+  
+  data?.forEach((student) => {
+    const name = student.name || "Unknown";
+    const student_uid = student.student_uid || "N/A";
+    const committee = student.committee || "N/A";
+
+    if (!totals[name]) {
+      totals[name] = { student_uid, name, committee, core: 0, ancillary: 0 };
+    }
+
+    student.residencylogs?.forEach((log) => {
+      const type = log.residency_type;
+      const hours = Number(log.hours) || 0;
+      
+      // Add the hours to the correct category
+      totals[name][type] += hours;
+    });
+  });
+
+  return Object.values(totals) || [];
+}
+
 export async function addTimeIn(studentId: string, timeIn: Date, residencyType: string, location: string) {
   const { error } = await supabase
     .from('residencylogs')
