@@ -3,20 +3,21 @@ import {
   fetchResidencyLogs,
   fetchResidencyRecords,
   fetchActiveResidencyLogs,
-  fetchStudentResidencyRecords
+  fetchStudentResidencyRecords,
+  fetchResidencyRecordsByMonth
 } from "../services/residencyService";
 import type { ResidencyLog, RunningLog, StudentResidencyRecord } from "../types";
 
-export function useStudentResidencyRecord(student_uid: string | undefined) {
+export function useStudentResidencyRecord(id: string | undefined) {
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function getResidenyRecords() {
+    async function getResidencyRecords() {
       try {
         // TODO: add type
-        const data: any = await fetchStudentResidencyRecords(student_uid || "");
+        const data: any = await fetchStudentResidencyRecords(id);
         setRecords(data);
         setIsLoading(false);
       } catch(err) {
@@ -24,8 +25,8 @@ export function useStudentResidencyRecord(student_uid: string | undefined) {
         setIsLoading(false);
       }
     }
-    getResidenyRecords();
-  }, [student_uid]);
+    getResidencyRecords();
+  }, [id]);
 
   return { records, isLoading, error };
 }
@@ -47,6 +48,32 @@ export function useResidencyRecords() {
       }
     }
     getResidenyRecords();
+  }, []);
+
+  return { records, isLoading, error };
+}
+
+export function useResidencyRecordsByMonth() {
+  const [records, setRecords] = useState<StudentResidencyRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function getResidencyRecordsByMonth() {
+      try {
+        setIsLoading(true);
+        const data: StudentResidencyRecord[] = await fetchResidencyRecordsByMonth();
+        setRecords(data);
+        setError("");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+        setRecords([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    getResidencyRecordsByMonth();
   }, []);
 
   return { records, isLoading, error };
