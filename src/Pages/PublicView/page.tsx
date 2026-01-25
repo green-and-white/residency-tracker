@@ -3,13 +3,13 @@ import { Header } from "@/components/ui/header";
 import Select, { type SingleValue } from 'react-select'
 import { type OptionType } from "@/types";
 import { ResidencyRecordsTable } from "@/components/ui/residency";
-import { useResidencyRecords } from "@/hooks/useResidencyLogs";
+// import { useResidencyRecords } from "@/hooks/useResidencyLogs";
+import { useResidencyRecordsByMonth } from "@/hooks/useResidencyLogs";
 
 export default function PublicView() {
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
   const [searchName, setSearchName] = useState<string>("");
-  
-  const records = useResidencyRecords();
+  const records = useResidencyRecordsByMonth();
   
   const options: OptionType[] = [
     { value: "customerCare", label: "Customer Care" },

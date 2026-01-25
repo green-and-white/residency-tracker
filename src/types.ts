@@ -22,6 +22,7 @@ export type Student = {
 }
 
 export interface StudentResidencyRecord {
+  id: string | undefined; 
   student_uid: string; 
   name: string;
   committee: string;
@@ -30,12 +31,15 @@ export interface StudentResidencyRecord {
 }
 
 export interface RawStudentResidencyRecord {
+  id: string | undefined; 
   student_uid: string; 
   name: string | null;
   committee: string | null;
   residencylogs: {
-    residency_type: 'core' | 'ancillary';
+    residency_type: 'core' | 'ancillary' | null;
     hours: number | string;
+    time_in?: string | null;
+    time_out?: string | null;
   }[];
 }
 
