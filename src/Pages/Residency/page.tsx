@@ -143,8 +143,7 @@ export default function Residency() {
 
   const options: OptionType[] = [
     { value: 'Pictorials', label: 'Pictorials' },
-    { value: 'YB Frame Claiming', label: 'YB Frame Claiming' },
-    { value: 'Registration', label: 'Registration' },
+    { value: 'Distribution', label: 'Distribution' },
   ];
 
   const handleSelection = (option: SingleValue<OptionType>) => {
