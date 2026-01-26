@@ -176,7 +176,7 @@ export function CampusIdResidency(
   );
 }
 
-export function AdminPromptBox({ onTimeOut }) {
+export function AdminPromptBox({ onTimeOut }: { onTimeOut: () => Promise<void> }) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);

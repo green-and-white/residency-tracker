@@ -9,7 +9,7 @@ import {
 import type { ResidencyLog, RunningLog, StudentResidencyRecord } from "../types";
 
 export function useStudentResidencyRecord(id: string | undefined) {
-  const [records, setRecords] = useState([]);
+  const [records, setRecords] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
