@@ -24,29 +24,10 @@ export default function Residency() {
   const [isStudentFound, setIsStudentFound] = useState(true);
   const { handleTimeIn } = useTimeInCore()
   const { handleTimeOut } = useTimeOut()
-  const [currentTime, setCurrentTime] = useState<{ time: string }>({ time: "" });
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
-
-  useEffect(() => {
-  const updateDateTime = () => {
-    const now = new Date();
-    setCurrentTime({
-      time: now.toLocaleTimeString("en-PH", {
-        timeZone: "Asia/Manila",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    });
-  };
-
-  updateDateTime(); // initialize immediately
-  const timer = setInterval(updateDateTime, 1000); // update every second
-
-  return () => clearInterval(timer);
-}, []);
 
   useEffect(() => {
     //handle when user clicks outside of the input div
@@ -259,6 +240,7 @@ export default function Residency() {
                 <th className="border border-gray-300 px-4 py-2">Name</th>
                 <th className="border border-gray-300 px-4 py-2">Committee</th>
                 <th className="border border-gray-300 px-4 py-2">Time in</th>
+                <th className="border border-gray-300 px-4 py-2">Location</th>
                 <th className="border border-gray-300 px-4 py-2">Action</th>
               </tr>
             </thead>
@@ -288,6 +270,7 @@ export default function Residency() {
                         minute: "2-digit",
                       })}
                     </td>
+                    <td className="border border-gray-300 px-4 py-2">{log.location}</td>
                     <td className = "border border-gray-300 px-4 py-2">
                       <AdminPromptBox 
                         onTimeOut={async() => handleTimeOutTable(log.student_uid)}

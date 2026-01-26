@@ -113,7 +113,9 @@ export async function fetchResidencyRecords(): Promise<StudentResidencyRecord[]>
       const hours = Number(log.hours) || 0;
       
       // Add the hours to the correct category
-      totals[name][type] += hours;
+      if (type === 'core' || type === 'ancillary') {
+        totals[name][type] += hours;
+      }
     });
   });
 
@@ -165,7 +167,9 @@ export async function fetchResidencyRecordsByMonth(): Promise<StudentResidencyRe
       const hours = Number(log.hours) || 0;
       
       // Add the hours to the correct category
-      totals[name][type] += hours;
+      if (type === 'core' || type === 'ancillary') {
+        totals[name][type] += hours;
+      }
     });
   });
 

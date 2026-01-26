@@ -11,7 +11,7 @@ export default function Main() {
 
     const today = new Date()
     
-    const formattedDate = today.toLocaleDateString("en-US", {
+    const formattedDate = today.toLocaleDateString("en-PH", {
         month: "long",
         day: "numeric",
         year: "numeric"
