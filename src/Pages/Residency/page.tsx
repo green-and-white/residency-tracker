@@ -240,6 +240,7 @@ export default function Residency() {
                 <th className="border border-gray-300 px-4 py-2">Name</th>
                 <th className="border border-gray-300 px-4 py-2">Committee</th>
                 <th className="border border-gray-300 px-4 py-2">Time in</th>
+                <th className="border border-gray-300 px-4 py-2">Location</th>
                 <th className="border border-gray-300 px-4 py-2">Action</th>
               </tr>
             </thead>
@@ -269,6 +270,7 @@ export default function Residency() {
                         minute: "2-digit",
                       })}
                     </td>
+                    <td className="border border-gray-300 px-4 py-2">{log.location}</td>
                     <td className = "border border-gray-300 px-4 py-2">
                       <AdminPromptBox 
                         onTimeOut={async() => handleTimeOutTable(log.student_uid)}
