@@ -24,8 +24,47 @@ export default function Residency() {
   const [isStudentFound, setIsStudentFound] = useState(true);
   const { handleTimeIn } = useTimeInCore()
   const { handleTimeOut } = useTimeOut()
+  const [currentTime, setCurrentTime] = useState<{ time: string }>({ time: "" });
+  const [isFocused, setIsFocused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
+
+  useEffect(() => {
+  const updateDateTime = () => {
+    const now = new Date();
+    setCurrentTime({
+      time: now.toLocaleTimeString("en-PH", {
+        timeZone: "Asia/Manila",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    });
+  };
+
+  updateDateTime(); // initialize immediately
+  const timer = setInterval(updateDateTime, 1000); // update every second
+
+  return () => clearInterval(timer);
+}, []);
+
+  useEffect(() => {
+    //handle when user clicks outside of the input div
+    const handleClickOutside = (event: MouseEvent) => {
+
+      //check if the container is present and if the clicked target is outside the container
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsFocused(false); //remove focus
+        setStudentId("") //clear input
+        console.log(studentId)
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null)
   const submittedRef = useRef(false)
@@ -50,6 +89,9 @@ export default function Residency() {
   const handleSubmit = async (uid: string) => {
     if (!selectedOption) {
       alert("Please select a location before scanning your ID.");
+      setIsLoading(false)
+      setStudentId("")
+      submittedRef.current = false
       return;
     }
 
@@ -67,18 +109,26 @@ export default function Residency() {
       }
 
       const activeLog = await hasActiveLogToday(uid);
-
-      if (activeLog) {
+      
+      //if there is an active log but location is different, time out the active log first then time in the new log for new location
+      if (activeLog && activeLog.location !== selectedOption.value) {
+        await handleTimeOut(uid, currentTimestamp); //time out previous log
+        await handleTimeIn(uid, currentTimestamp, selectedOption!.value); //time in new log with new location
+        toast.success(`${activeLog.students.name} timed in at ${selectedOption!.label}.`, {
+          description: `Timed out residency at previous booth.`,
+          duration: 6000
+        });
+      } else if (activeLog) { //just an active log
         await handleTimeOut(uid, currentTimestamp);
-        toast.success('Successfully timed out.', {
+        toast.success(`${activeLog.students.name} timed out.`, {
           description: "Enjoy the rest of your day!",
-          duration: 2000
+          duration: 4000
         });
       } else {
-        await handleTimeIn(uid, currentTimestamp, selectedOption!.value);
-        toast.success('Successfully timed in.', {
+        const data = await handleTimeIn(uid, currentTimestamp, selectedOption!.value);
+        toast.success(`${data.name} timed in.`, {
           description: "Glad to see you!",
-          duration: 2000
+          duration: 4000
         });
       }
 
@@ -94,6 +144,7 @@ export default function Residency() {
       setStudentId("")
       submittedRef.current = false
       inputRef.current?.focus()
+      setIsFocused(true);
     }
   };
 
@@ -162,10 +213,13 @@ export default function Residency() {
               {!isStudentFound && <p className="mt-1 text-xs italic text-red-600">*Student not found.</p>}
 
               <div
-                onClick={() => inputRef.current?.focus()}
-                className="cursor-pointer select-none px-12 py-28 w-sm rounded-sm bg-white text-black text-center
-                           border-2 border-gray-300 hover:border-green-500 active:border-green-600 active:border-3"
-              >
+                ref={containerRef}
+                onClick={() => {
+                  inputRef.current?.focus();
+                  setIsFocused(true);
+                }}
+                className={`cursor-pointer select-none px-12 py-28 w-sm rounded-sm bg-white text-black text-center
+                           border-2  hover:border-blue-500 ${isFocused ? "border-blue-500" : "border-gray-300"}`}>
                 Click here before scanning your ID <br />
                 <span className="text-gray-500">Scan your ID on the RFID sensor</span>
               </div>
@@ -176,8 +230,8 @@ export default function Residency() {
                 value={studentId}
                 onChange={handleScanChange}
                 onCopy={(e) => e.preventDefault()}
-                className="absolute opacity-0 w-sm"
-                autoComplete="off"
+                autoComplete = "new-password"
+                className={`absolute opacity-0 w-sm ${isFocused ? "border-blue-500" : "border-black-300"}`}
               />
             </div>
 
@@ -217,10 +271,16 @@ export default function Residency() {
                   </td>
                 </tr>
               ) : (
-                activeLogs.map((log, index) => (
+                activeLogs.map((log, index) => {
+                  
+                  if (log.location !== selectedOption?.value) {
+                    return null; // Skip rendering this log if location doesn't match
+                  }
+                  return(
+                  
                   <tr key={index}>
                     <td className="border border-gray-300 px-4 py-2">{log.student_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
+                    <td className="border border-gray-300 px-4 py-2">{log.committee.charAt(0).toUpperCase() + log.committee.slice(1)}</td>
                     <td className="border border-gray-300 px-4 py-2">
                       {new Date(`${log.time_in}Z`).toLocaleTimeString("en-PH", {
                         timeZone: "Asia/Manila",
@@ -235,7 +295,7 @@ export default function Residency() {
                       /> 
                     </td>
                   </tr>
-                ))
+                )})
               )}
             </tbody>
           </table>
