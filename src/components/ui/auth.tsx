@@ -6,6 +6,7 @@ import { SessionContext } from "@/hooks/useSession";
 import { fetchStudentAuthByEmail } from "@/services/checkStudentService";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 export function LogoutButton() {
   const [password, setPassword] = useState("");
@@ -90,26 +91,12 @@ export function LogoutButton() {
 }
 
 export function LoginButton() {
-  const [isLoading, setIsLoading] = useState(false) 
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleClick = async () => {
     setIsLoading(true)
-   
-    // Note: removed data since it is unused.
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      },
-    })
-
-    if (error) {
-      console.error('Error signing in with Google:', error);
-    } 
-    
+    navigate("/residency")
   } 
   
   return (

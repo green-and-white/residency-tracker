@@ -27,7 +27,7 @@ export default function Residency() {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
+  const [selectedOption, setSelectedOption] = useState<OptionType | null>({ value: "Office", label: "Office" });
 
   useEffect(() => {
     //handle when user clicks outside of the input div
@@ -142,9 +142,7 @@ export default function Residency() {
   };
 
   const options: OptionType[] = [
-    { value: 'Pictorials', label: 'Pictorials' },
-    { value: 'YB Frame Claiming', label: 'YB Frame Claiming' },
-    { value: 'Registration', label: 'Registration' },
+    { value: 'Office', label: 'Office' },
   ];
 
   const handleSelection = (option: SingleValue<OptionType>) => {

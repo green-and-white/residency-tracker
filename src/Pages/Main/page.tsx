@@ -1,13 +1,8 @@
 import gwLogo from '@/assets/gw_logo.png'
 import { Link } from 'react-router-dom'
 import { LoginButton } from '@/components/ui/auth'
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import useSession from '@/hooks/useSession'
 
 export default function Main() {
-    const session = useSession();
-    const navigate = useNavigate();   
 
     const today = new Date()
     
@@ -16,12 +11,6 @@ export default function Main() {
         day: "numeric",
         year: "numeric"
     })
-
-    useEffect(() => {
-      if (session) {
-        navigate("/residency", { replace: true });
-      }
-    }, [ session, navigate ]);
 
     return (
         <main className='flex flex-col justify-center items-center min-h-screen space-y-8'>
