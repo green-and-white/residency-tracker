@@ -291,8 +291,8 @@ export function StudentResidencyTable(
     `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`;
   
   const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
+    const date = new Date(`${timestamp}Z`);
+    return date.toLocaleDateString('en-PH', { 
       year: 'numeric', 
       month: 'short', 
       day: 'numeric' 
@@ -300,18 +300,23 @@ export function StudentResidencyTable(
   };
   
   const formatTime = (timeIn: string, timeOut: string) => {
-    const timeInDate = new Date(timeIn);
-    const timeOutDate = new Date(timeOut);
-    const timeInFormatted = timeInDate.toLocaleTimeString('en-US', { 
+    const timeInDate = new Date(`${timeIn}Z`);
+    const timeOutDate = new Date(`${timeOut}Z`);
+    const timeInFormatted = timeInDate.toLocaleTimeString('en-PH', { 
       hour: '2-digit', 
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
+      timeZone: 'Asia/Manila'
     });
-    const timeOutFormatted = timeOutDate.toLocaleTimeString('en-US', { 
+    const timeOutFormatted = timeOutDate.toLocaleTimeString('en-PH', { 
       hour: '2-digit', 
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
+      timeZone: 'Asia/Manila'
     });
+    console.log("Unformatted: ", timeIn);
+    console.log("Formatted: ", timeInFormatted);
+    
     return `${timeInFormatted} - ${timeOutFormatted}`;
   };
   
@@ -408,7 +413,7 @@ export function ResidencyRecordsTable(
   const tableHeaders = ["Staffer Name", "Committee", "Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const forSorting = ["Core Hours", "Ancilliary Hours", "Hours Rendered"];
   const [currentPage, setCurrentPage] = useState(1);
-  const currentMonth = new Date().toLocaleDateString('en-US', { month: 'short' }); 
+  const currentMonth = new Date().toLocaleDateString('en-PH', { month: 'short' }); 
 
   // TODO: Turn into a type 
   const [sortConfig, setSortConfig] = useState<{
