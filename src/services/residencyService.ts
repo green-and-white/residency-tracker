@@ -182,13 +182,23 @@ export async function addTimeIn(studentId: string, timeIn: Date, residencyType: 
       location: location
     });
   
-  if (error) {
+  const {data, error: checkError} = await supabase
+    .from('students')
+    .select('name')
+    .eq('student_uid', studentId)
+    .single();
+  
+  if (error || checkError) {
     console.error("Service Error: addTimeIn", error);
     throw new Error("Unable to create a residency log to time in.");
   }
+
+  return data; 
 }
 
+
 export async function addTimeOut(studentId: string, timeOut: Date) {
+ 
   const { error } = await supabase
     .from('residencylogs')
     .update({ time_out: timeOut.toISOString() })
@@ -198,7 +208,7 @@ export async function addTimeOut(studentId: string, timeOut: Date) {
   if (error) {
     console.error("Service Error: addTimeOut", error);
     throw new Error("Unable to update residency log to time out.")
-  }
+  } 
 }
 
 export async function hasActiveLogToday(studentId: string): Promise<ActiveLog | null> {
@@ -210,7 +220,7 @@ export async function hasActiveLogToday(studentId: string): Promise<ActiveLog | 
 
   const { data, error } = await supabase
     .from('residencylogs')
-    .select('*')
+    .select("*, students(name)")
     .eq('student_uid', studentId)
     .gte('time_in', startOfDay.toISOString())
     .lte('time_in', endOfDay.toISOString())
@@ -222,6 +232,8 @@ export async function hasActiveLogToday(studentId: string): Promise<ActiveLog | 
     throw new Error('Could not check for existing logs.');
   }
 
+  console.log(data);
+  
   return data;
 }
 
@@ -288,7 +300,7 @@ export async function fetchActiveResidencyLogs(): Promise<RunningLog[]> {
 
   const { data, error } = await supabase
     .from("residencylogs")
-    .select("time_in, students(name, committee), residency_type, student_uid")
+    .select("time_in, students(name, committee), residency_type, student_uid, location")
     .gte("time_in", new Date(start).toISOString())
     .lte("time_in", new Date(end).toISOString()) 
     .eq("residency_type", "core")
@@ -306,7 +318,8 @@ export async function fetchActiveResidencyLogs(): Promise<RunningLog[]> {
       time_in: log.time_in,
       committee: student?.committee ?? "Unknown",
       residency_type: log.residency_type,
-      student_uid: log.student_uid
+      student_uid: log.student_uid,
+      location: log.location
     };
   });
 

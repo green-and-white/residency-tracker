@@ -49,6 +49,8 @@ export interface ActiveLog {
   time_in: string;
   time_out: string | null;
   residency_type: string;
+  location: string;
+  students: { name: string };
 }
 
 export interface RunningLog{
@@ -57,6 +59,7 @@ export interface RunningLog{
   committee: string;
   residency_type: string;
   student_uid: string;
+  location: string
 }
 
 export type OptionType = {

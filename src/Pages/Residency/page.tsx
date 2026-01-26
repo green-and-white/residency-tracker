@@ -109,18 +109,26 @@ export default function Residency() {
       }
 
       const activeLog = await hasActiveLogToday(uid);
-
-      if (activeLog) {
+      
+      //if there is an active log but location is different, time out the active log first then time in the new log for new location
+      if (activeLog && activeLog.location !== selectedOption.value) {
+        await handleTimeOut(uid, currentTimestamp); //time out previous log
+        await handleTimeIn(uid, currentTimestamp, selectedOption!.value); //time in new log with new location
+        toast.success(`${activeLog.students.name} timed in at ${selectedOption!.label}.`, {
+          description: `Timed out residency at previous booth.`,
+          duration: 6000
+        });
+      } else if (activeLog) { //just an active log
         await handleTimeOut(uid, currentTimestamp);
-        toast.success('Successfully timed out.', {
+        toast.success(`${activeLog.students.name} timed out.`, {
           description: "Enjoy the rest of your day!",
-          duration: 2000
+          duration: 4000
         });
       } else {
-        await handleTimeIn(uid, currentTimestamp, selectedOption!.value);
-        toast.success('Successfully timed in.', {
+        const data = await handleTimeIn(uid, currentTimestamp, selectedOption!.value);
+        toast.success(`${data.name} timed in.`, {
           description: "Glad to see you!",
-          duration: 2000
+          duration: 4000
         });
       }
 
@@ -263,10 +271,16 @@ export default function Residency() {
                   </td>
                 </tr>
               ) : (
-                activeLogs.map((log, index) => (
+                activeLogs.map((log, index) => {
+                  
+                  if (log.location !== selectedOption?.value) {
+                    return null; // Skip rendering this log if location doesn't match
+                  }
+                  return(
+                  
                   <tr key={index}>
                     <td className="border border-gray-300 px-4 py-2">{log.student_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{log.committee}</td>
+                    <td className="border border-gray-300 px-4 py-2">{log.committee.charAt(0).toUpperCase() + log.committee.slice(1)}</td>
                     <td className="border border-gray-300 px-4 py-2">
                       {new Date(`${log.time_in}Z`).toLocaleTimeString("en-PH", {
                         timeZone: "Asia/Manila",
@@ -281,7 +295,7 @@ export default function Residency() {
                       /> 
                     </td>
                   </tr>
-                ))
+                )})
               )}
             </tbody>
           </table>

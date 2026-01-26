@@ -7,11 +7,13 @@ export function useTimeInCore() {
   
   async function handleTimeIn(studentId: string, timeIn: Date, location: string) {
     try {
-      await addTimeIn(studentId, timeIn, "core", location);
+      let name = await addTimeIn(studentId, timeIn, "core", location);
       setIsLoading(false);
+      return name; 
     } catch (err) {
       setError(String(err));
       setIsLoading(false);
+      throw err; // Re-throw so the caller can handle it
     }
   }
  
