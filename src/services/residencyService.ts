@@ -38,7 +38,8 @@ export async function fetchStudentResidencyRecords(id: string | undefined) {
       location,
       hours
     `)
-    .eq("student_uid", student_uid);
+    .eq("student_uid", student_uid)
+    .neq("residency_type", "void"); // Does not return voided residency types
 
   if (error) {
     console.error("Service Error: fetchStudentResidencyRecords", error);
